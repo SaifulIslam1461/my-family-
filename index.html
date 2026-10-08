@@ -27,6 +27,18 @@
     <style>
         body { font-family: 'Tiro Bangla', serif; }
         .active-tab { border-bottom: 3px solid #D4AF37; color: #D4AF37; }
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            width: 16px;
+            height: 16px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-20">
@@ -37,21 +49,33 @@
             <i class="fa-solid fa-people-roof text-2xl text-yellow-400"></i>
             <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য v1.0</h1>
         </div>
-        <button id="logout-btn" onclick="handleLogout()" class="hidden text-xs bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg">লগআউট</button>
+        <button id="logout-btn" onclick="handleLogout()" class="hidden text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition font-bold">
+            <i class="fa-solid fa-right-from-bracket mr-1"></i> লগআউট
+        </button>
     </header>
 
     <!-- Auth Section (Login / Sign Up) -->
     <section id="auth-screen" class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl mt-10 text-center">
         <i class="fa-solid fa-kaaba text-5xl text-emerald-800 dark:text-yellow-400 mb-4"></i>
         <h2 class="text-xl font-bold mb-4 text-emerald-800 dark:text-yellow-400">পারিবারিক নেটওয়ার্কে প্রবেশ করুন</h2>
+        
         <div class="space-y-3">
-            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 text-sm">
-            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড" class="w-full p-3 border rounded-xl dark:bg-gray-700 text-sm">
-            <div class="flex gap-2">
-                <button onclick="handleLogin()" class="w-1/2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm">লগইন</button>
-                <button onclick="handleSignUp()" class="w-1/2 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-xl shadow transition text-sm">রেজিস্ট্রেশন</button>
+            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
+            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
+            
+            <div class="flex gap-2 pt-2">
+                <button id="btn-login" onclick="handleLogin()" class="w-1/2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                    <span id="login-spinner" class="spinner hidden"></span>
+                    <span id="login-text">লগইন</span>
+                </button>
+                <button id="btn-signup" onclick="handleSignUp()" class="w-1/2 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                    <span id="signup-spinner" class="spinner hidden"></span>
+                    <span id="signup-text">রেজিস্ট্রেশন</span>
+                </button>
             </div>
-            <p id="auth-error" class="text-xs text-red-500 mt-2"></p>
+            
+            <!-- Dynamic Status Message -->
+            <div id="auth-message" class="hidden text-xs p-3 rounded-xl mt-3 text-left font-sans"></div>
         </div>
     </section>
 
@@ -69,10 +93,13 @@
 
         <!-- Create Post -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
-            <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none" rows="2"></textarea>
+            <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
             <div class="flex justify-between items-center border-t dark:border-gray-700 pt-3">
-                <input type="text" id="image-url" placeholder="ছবি/ভিডিও লিংক (ঐচ্ছিক)" class="text-xs p-2 bg-gray-100 dark:bg-gray-700 rounded w-2/3">
-                <button onclick="createPost()" class="bg-emerald-800 text-white text-xs px-4 py-2 rounded-lg font-bold">পোস্ট করুন</button>
+                <input type="text" id="image-url" placeholder="ছবি/ভিডিও লিংক (ঐচ্ছিক)" class="text-xs p-2 bg-gray-100 dark:bg-gray-700 rounded w-2/3 dark:text-white">
+                <button id="btn-create-post" onclick="createPost()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+                    <span id="post-spinner" class="spinner hidden"></span>
+                    <span id="post-btn-text">পোস্ট করুন</span>
+                </button>
             </div>
         </div>
 
@@ -83,61 +110,128 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs">
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button class="flex flex-col items-center active-tab"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button class="flex flex-col items-center"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
         <button class="flex flex-col items-center"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
     </nav>
 
     <script>
-        // 🔑 আপনার আসল Supabase লিঙ্ক ও Legacy Anon JWT Key
+        // 🔑 Supabase Credentials
         const SUPABASE_URL = 'https://zwpoxufpeluqtdooeekr.supabase.co';
-        const SUPABASE_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
+        // Initialize Client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // অ্যাপ লোড হওয়ার সাথে সাথে চেক করবে ইউজার লগইন আছে কিনা
-        window.onload = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                showApp();
-            }
-        };
+        // Global State & Auth Listener
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Setup Realtime Auth State Tracking
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    showAppScreen();
+                } else {
+                    showAuthScreen();
+                }
+            });
+        });
 
-        // লগইন ফাংশন
+        // Helper UI Message Display
+        function showAuthMsg(text, isError = true) {
+            const msgBox = document.getElementById('auth-message');
+            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            
+            if (isError) {
+                msgBox.classList.add('bg-red-100', 'text-red-700');
+            } else {
+                msgBox.classList.add('bg-green-100', 'text-green-700');
+            }
+            msgBox.innerText = text;
+        }
+
+        function clearAuthMsg() {
+            const msgBox = document.getElementById('auth-message');
+            msgBox.classList.add('hidden');
+            msgBox.innerText = '';
+        }
+
+        // Login Handler
         async function handleLogin() {
-            const email = document.getElementById('auth-email').value;
+            clearAuthMsg();
+            const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-            if (error) {
-                document.getElementById('auth-error').innerText = "ভুল ইমেইল বা পাসওয়ার্ড!";
-            } else {
-                showApp();
+            if (!email || !password) {
+                return showAuthMsg('অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন।', true);
+            }
+
+            // Set Loading UI
+            setLoading('login', true);
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    if (error.message.includes('Email not confirmed')) {
+                        showAuthMsg('আপনার ইমেইলটি এখনো ভেরিফাই করা হয়নি। আপনার ইনবক্স চেক করে লিঙ্কটিতে ক্লিক করুন।', true);
+                    } else if (error.message.includes('Invalid login credentials')) {
+                        showAuthMsg('ইমেইল অথবা পাসওয়ার্ড ভুল হয়েছে। সঠিক তথ্য দিয়ে পুনরায় চেষ্টা করুন।', true);
+                    } else {
+                        showAuthMsg('লগইন করতে সমস্যা হয়েছে: ' + error.message, true);
+                    }
+                } else {
+                    showAuthMsg('লগইন সফল হয়েছে! অ্যাপ লোড হচ্ছে...', false);
+                }
+            } catch (err) {
+                showAuthMsg('নেটওয়ার্ক অথবা সার্ভার এরর! পুনরায় চেষ্টা করুন।', true);
+            } finally {
+                setLoading('login', false);
             }
         }
 
-        // সাইনআপ ফাংশন
+        // SignUp Handler
         async function handleSignUp() {
-            const email = document.getElementById('auth-email').value;
+            clearAuthMsg();
+            const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            const { data, error } = await supabase.auth.signUp({ email, password });
 
-            if (error) {
-                document.getElementById('auth-error').innerText = error.message;
-            } else {
-                alert("রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করুন।");
+            if (!email || !password) {
+                return showAuthMsg('অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন।', true);
+            }
+            if (password.length < 6) {
+                return showAuthMsg('পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।', true);
+            }
+
+            // Set Loading UI
+            setLoading('signup', true);
+
+            try {
+                const { data, error } = await supabase.auth.signUp({ email, password });
+
+                if (error) {
+                    showAuthMsg('রেজিস্ট্রেশন ব্যর্থ হয়েছে: ' + error.message, true);
+                } else {
+                    if (data.session) {
+                        showAuthMsg('রেজিস্ট্রেশন ও অটো-লগইন সফল হয়েছে!', false);
+                    } else {
+                        showAuthMsg('রেজিস্ট্রেশন সফল হয়েছে! আপনার ইমেইল ইনবক্সে গিয়ে ভেরিফিকেশন লিঙ্কে ক্লিক করে নিশ্চিত করুন।', false);
+                    }
+                }
+            } catch (err) {
+                showAuthMsg('নেটওয়ার্ক এরর! পুনরায় চেষ্টা করুন।', true);
+            } finally {
+                setLoading('signup', false);
             }
         }
 
-        // লগআউট
+        // Logout Handler
         async function handleLogout() {
             await supabase.auth.signOut();
             location.reload();
         }
 
-        // মূল অ্যাপ দেখানো
-        function showApp() {
+        // Screen Navigation
+        function showAppScreen() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
             document.getElementById('bottom-nav').classList.remove('hidden');
@@ -146,40 +240,91 @@
             setupRealtime();
         }
 
-        // নতুন পোস্ট তৈরি (লাইভ সিঙ্ক)
-        async function createPost() {
-            const content = document.getElementById('post-text').value;
-            const media_url = document.getElementById('image-url').value;
-            const { data: { user } } = await supabase.auth.getUser();
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('logout-btn').classList.add('hidden');
+        }
 
-            if (!content) return alert("কিছু লিখুন!");
+        // Loading Toggle Helper
+        function setLoading(type, isLoading) {
+            const btnLogin = document.getElementById('btn-login');
+            const btnSignup = document.getElementById('btn-signup');
+            const loginSpinner = document.getElementById('login-spinner');
+            const signupSpinner = document.getElementById('signup-spinner');
+
+            if (type === 'login') {
+                btnLogin.disabled = isLoading;
+                btnSignup.disabled = isLoading;
+                if (isLoading) {
+                    loginSpinner.classList.remove('hidden');
+                } else {
+                    loginSpinner.classList.add('hidden');
+                }
+            } else if (type === 'signup') {
+                btnLogin.disabled = isLoading;
+                btnSignup.disabled = isLoading;
+                if (isLoading) {
+                    signupSpinner.classList.remove('hidden');
+                } else {
+                    signupSpinner.classList.add('hidden');
+                }
+            }
+        }
+
+        // Create Post
+        async function createPost() {
+            const content = document.getElementById('post-text').value.trim();
+            const media_url = document.getElementById('image-url').value.trim();
+            
+            if (!content) return alert("অনুগ্রহ করে বার্তা বা পোস্টটি লিখুন!");
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return alert("লগইন সেশন পাওয়া যায়নি। পুনরায় লগইন করুন।");
+
+            const postSpinner = document.getElementById('post-spinner');
+            const postBtn = document.getElementById('btn-create-post');
+            postSpinner.classList.remove('hidden');
+            postBtn.disabled = true;
 
             const { error } = await supabase.from('posts').insert([
                 { 
                     user_id: user.id, 
-                    author_name: user.email.split('@')[0], 
+                    author_name: user.email ? user.email.split('@')[0] : 'User', 
                     content: content, 
                     media_url: media_url || null 
                 }
             ]);
 
+            postSpinner.classList.add('hidden');
+            postBtn.disabled = false;
+
             if (!error) {
                 document.getElementById('post-text').value = '';
                 document.getElementById('image-url').value = '';
+                loadPosts();
             } else {
-                alert("পোস্ট করা সম্ভব হয়নি: " + error.message);
+                alert("পোস্ট সাবমিট করা যায়নি: " + error.message);
             }
         }
 
-        // পোস্ট লোড করা
+        // Load Posts
         async function loadPosts() {
+            const container = document.getElementById('posts-container');
+            
             const { data: posts, error } = await supabase
                 .from('posts')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            const container = document.getElementById('posts-container');
             container.innerHTML = '';
+
+            if (error) {
+                console.error("Posts Fetch Error:", error);
+                container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-50 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${error.message}</p>`;
+                return;
+            }
 
             if (posts && posts.length > 0) {
                 posts.forEach(post => {
@@ -189,13 +334,13 @@
                                 <div class="flex items-center space-x-2">
                                     <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
                                     <div>
-                                        <h4 class="font-bold text-xs">${post.author_name || 'User'}</h4>
+                                        <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'User'}</h4>
                                         <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-sm">${post.content}</p>
-                            ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover">` : ''}
+                            <p class="text-sm dark:text-gray-300">${post.content}</p>
+                            ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ''}
                         </div>
                     `;
                 });
@@ -204,12 +349,12 @@
             }
         }
 
-        // ⚡ রিয়েলটাইম সিঙ্ক: এক ফোনে পোস্ট করলে অন্য ফোনে সাথে সাথে চলে আসবে!
+        // ⚡ Realtime Sync
         function setupRealtime() {
             supabase
                 .channel('public:posts')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
-                    loadPosts(); // নতুন পোস্ট আসার সাথে সাথে স্ক্রিন রিফ্রেশ হবে
+                    loadPosts();
                 })
                 .subscribe();
         }
