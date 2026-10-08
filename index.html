@@ -1,1 +1,217 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পারিবারিক ঐতিহ্য - Family Heritage</title>
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Google Bangla Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { emerald: { 800: '#1b4332', 900: '#0d1f17' }, gold: '#D4AF37' },
+                    fontFamily: { bangla: ['"Tiro Bangla"', 'serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Tiro Bangla', serif; }
+        .active-tab { border-bottom: 3px solid #D4AF37; color: #D4AF37; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-20">
+
+    <!-- Top Navigation -->
+    <header class="bg-emerald-800 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <i class="fa-solid fa-people-roof text-2xl text-yellow-400"></i>
+            <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য v1.0</h1>
+        </div>
+        <button id="logout-btn" onclick="handleLogout()" class="hidden text-xs bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg">লগআউট</button>
+    </header>
+
+    <!-- Auth Section (Login / Sign Up) -->
+    <section id="auth-screen" class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl mt-10 text-center">
+        <i class="fa-solid fa-kaaba text-5xl text-emerald-800 dark:text-yellow-400 mb-4"></i>
+        <h2 class="text-xl font-bold mb-4 text-emerald-800 dark:text-yellow-400">পারিবারিক নেটওয়ার্কে প্রবেশ করুন</h2>
+        <div class="space-y-3">
+            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 text-sm">
+            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড" class="w-full p-3 border rounded-xl dark:bg-gray-700 text-sm">
+            <div class="flex gap-2">
+                <button onclick="handleLogin()" class="w-1/2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm">লগইন</button>
+                <button onclick="handleSignUp()" class="w-1/2 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-xl shadow transition text-sm">রেজিস্ট্রেশন</button>
+            </div>
+            <p id="auth-error" class="text-xs text-red-500 mt-2"></p>
+        </div>
+    </section>
+
+    <!-- App Main Screen -->
+    <main id="app-screen" class="hidden max-w-2xl mx-auto p-4 space-y-6">
+
+        <!-- Banner -->
+        <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white">
+            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=800" class="w-full h-36 object-cover opacity-40" alt="Banner">
+            <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black/80 to-transparent w-full">
+                <h2 class="text-xl font-bold text-yellow-400">পারিবারিক আর্কাইভ</h2>
+                <p class="text-xs italic">"ঈমান, একতা ও ঐতিহ্যের বন্ধন"</p>
+            </div>
+        </div>
+
+        <!-- Create Post -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
+            <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none" rows="2"></textarea>
+            <div class="flex justify-between items-center border-t dark:border-gray-700 pt-3">
+                <input type="text" id="image-url" placeholder="ছবি/ভিডিও লিংক (ঐচ্ছিক)" class="text-xs p-2 bg-gray-100 dark:bg-gray-700 rounded w-2/3">
+                <button onclick="createPost()" class="bg-emerald-800 text-white text-xs px-4 py-2 rounded-lg font-bold">পোস্ট করুন</button>
+            </div>
+        </div>
+
+        <!-- Live Feed Container -->
+        <div id="posts-container" class="space-y-4">
+            <p class="text-center text-sm text-gray-500">লোডিং হচ্ছে...</p>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs">
+        <button class="flex flex-col items-center active-tab"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
+        <button class="flex flex-col items-center"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
+        <button class="flex flex-col items-center"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
+    </nav>
+
+    <script>
+        // 🔑 আপনার Supabase লিঙ্ক ও Key নিচে বসান
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // অ্যাপ লোড হওয়ার সাথে সাথে চেক করবে ইউজার লগইন আছে কিনা
+        window.onload = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                showApp();
+            }
+        };
+
+        // লগইন ফাংশন
+        async function handleLogin() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                document.getElementById('auth-error').innerText = "ভুল ইমেইল বা পাসওয়ার্ড!";
+            } else {
+                showApp();
+            }
+        }
+
+        // সাইনআপ ফাংশন
+        async function handleSignUp() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { data, error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                document.getElementById('auth-error').innerText = error.message;
+            } else {
+                alert("রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করুন।");
+            }
+        }
+
+        // লগআউট
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
+        // মূল অ্যাপ দেখানো
+        function showApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            document.getElementById('logout-btn').classList.remove('hidden');
+            loadPosts();
+            setupRealtime();
+        }
+
+        // নতুন পোস্ট তৈরি (লাইভ সিঙ্ক)
+        async function createPost() {
+            const content = document.getElementById('post-text').value;
+            const media_url = document.getElementById('image-url').value;
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!content) return alert("কিছু লিখুন!");
+
+            const { error } = await supabase.from('posts').insert([
+                { 
+                    user_id: user.id, 
+                    author_name: user.email.split('@')[0], 
+                    content: content, 
+                    media_url: media_url || null 
+                }
+            ]);
+
+            if (!error) {
+                document.getElementById('post-text').value = '';
+                document.getElementById('image-url').value = '';
+            }
+        }
+
+        // পোস্ট লোড করা
+        async function loadPosts() {
+            const { data: posts, error } = await supabase
+                .from('posts')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '';
+
+            if (posts && posts.length > 0) {
+                posts.forEach(post => {
+                    container.innerHTML += `
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name[0].toUpperCase()}</div>
+                                    <div>
+                                        <h4 class="font-bold text-xs">${post.author_name}</h4>
+                                        <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm">${post.content}</p>
+                            ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover">` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                container.innerHTML = `<p class="text-center text-sm text-gray-500">এখনো কোনো পোস্ট করা হয়নি। প্রথম পোস্টটি আপনিই করুন!</p>`;
+            }
+        }
+
+        // ⚡ রিয়েলটাইম সিঙ্ক: এক ফোনে পোস্ট করলে অন্য ফোনে সাথে সাথে চলে আসবে!
+        function setupRealtime() {
+            supabase
+                .channel('public:posts')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
+                    loadPosts(); // নতুন পোস্ট আসার সাথে সাথে স্ক্রিন রিফ্রেশ হবে
+                })
+                .subscribe();
+        }
+    </script>
+</body>
+</html>
 
