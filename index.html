@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>পারিবারিক ঐতিহ্য - Family Heritage</title>
 
-    <!-- Supabase JS Client SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <!-- FontAwesome & Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -59,13 +56,13 @@
     <!-- Authentication Screen (Login / Registration) -->
     <section id="auth-screen" class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl mt-10 text-center">
         <i class="fa-solid fa-kaaba text-5xl text-emerald-800 dark:text-yellow-400 mb-4"></i>
-        <h2 id="auth-title" class="text-xl font-bold mb-2 text-emerald-800 dark:text-yellow-400">পারিবারিক নেটওয়ার্কে প্রবেশ করুন</h2>
-        <p class="text-xs text-gray-500 mb-4">পরিবারের সদস্য হিসেবে আপনার অ্যাকাউন্ট খুলুন অথবা লগইন করুন</p>
+        <h2 class="text-xl font-bold mb-2 text-emerald-800 dark:text-yellow-400">পারিবারিক অ্যাকাউন্টে প্রবেশ</h2>
+        <p class="text-xs text-gray-500 mb-4">আপনার নাম, ইমেইল ও পাসওয়ার্ড দিয়ে একাউন্ট খুলুন বা লগইন করুন</p>
         
         <div class="space-y-3">
-            <input type="text" id="reg-name" placeholder="আপনার পুরো নাম (যেমন: সাইফুল ইসলাম)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
-            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
-            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
+            <input type="text" id="reg-name" placeholder="আপনার নাম (যেমন: সাইফুল ইসলাম)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none dark:text-white">
+            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none dark:text-white">
+            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none dark:text-white">
             
             <div class="flex gap-2 pt-2">
                 <button id="btn-login" onclick="handleLogin()" class="w-1/2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
@@ -78,7 +75,6 @@
                 </button>
             </div>
             
-            <!-- Message Box -->
             <div id="auth-message" class="hidden text-xs p-3 rounded-xl mt-3 text-left font-sans"></div>
         </div>
     </section>
@@ -158,14 +154,12 @@
 
     <script>
         const SUPABASE_BASE = 'https://zwpoxufpeluqtdooeekr.supabase.co';
-        const SUPABASE_URL = `${SUPABASE_BASE}/rest/v1/posts`;
+        const SUPABASE_POSTS = `${SUPABASE_BASE}/rest/v1/posts`;
+        const SUPABASE_MEMBERS = `${SUPABASE_BASE}/rest/v1/family_members`;
         const STORAGE_URL = `${SUPABASE_BASE}/storage/v1/object/media`;
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
         const DELETE_PIN = '1234';
-
-        // Initialize Supabase Client SDK
-        const supabase = window.supabase.createClient(SUPABASE_BASE, SUPABASE_KEY);
 
         let currentUser = null;
         let currentTab = 'feed';
@@ -173,83 +167,105 @@
         let selectedFile = null;
         let cachedPosts = [];
 
-        // Auth Listeners & Auto Session Restore
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
+        // Check stored session
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('family_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
                 showAppScreen();
             } else {
                 showAuthScreen();
             }
-
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    currentUser = session.user;
-                    showAppScreen();
-                } else {
-                    currentUser = null;
-                    showAuthScreen();
-                }
-            });
         });
 
-        // 🔑 Login Handler
-        async function handleLogin() {
-            clearAuthMsg();
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-
-            if (!email || !password) return showAuthMsg("অনুগ্রহ করে ইমেইল ও পাসওয়ার্ড প্রদান করুন।");
-
-            const spinner = document.getElementById('login-spinner');
-            spinner.classList.remove('hidden');
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-            spinner.classList.add('hidden');
-
-            if (error) {
-                if (error.message.includes('Email not confirmed')) {
-                    showAuthMsg("আপনার ইমেইলটি এখনও কনফার্ম করা হয়নি। Supabase থেকে ইমেইল ভেরিফিকেশন ডিজেবল করুন।");
-                } else {
-                    showAuthMsg("লগইন ব্যর্থ হয়েছে: " + error.message);
-                }
-            }
-        }
-
-        // 📝 Sign Up Handler
+        // 📝 Sign Up Function
         async function handleSignUp() {
             clearAuthMsg();
             const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
+            const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const password = document.getElementById('auth-password').value;
 
-            if (!name || !email || !password) return showAuthMsg("আপনার নাম, ইমেইল এবং পাসওয়ার্ড প্রদান করুন।");
-            if (password.length < 6) return showAuthMsg("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।");
+            if (!name || !email || !password) return showAuthMsg("অনুগ্রহ করে আপনার নাম, ইমেইল এবং পাসওয়ার্ড দিন।");
 
             const spinner = document.getElementById('signup-spinner');
             spinner.classList.remove('hidden');
 
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: { data: { full_name: name } }
-            });
+            try {
+                // Check if email already exists
+                const checkRes = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const existing = await checkRes.json();
 
-            spinner.classList.add('hidden');
+                if (existing.length > 0) {
+                    spinner.classList.add('hidden');
+                    return showAuthMsg("এই ইমেইল দিয়ে ইতোমধ্যে একটি একাউন্ট আছে। লগইন করার চেষ্টা করুন।");
+                }
 
-            if (error) {
-                showAuthMsg("রেজিস্ট্রেশন ব্যর্থ হয়েছে: " + error.message);
-            } else {
-                showAuthMsg("রেজিস্ট্রেশন সফল হয়েছে! লগইন হচ্ছে...", false);
+                // Register New Member
+                const insertRes = await fetch(SUPABASE_MEMBERS, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                if (insertRes.ok) {
+                    const createdUser = await insertRes.json();
+                    currentUser = createdUser[0];
+                    localStorage.setItem('family_user', JSON.stringify(currentUser));
+                    showAppScreen();
+                } else {
+                    showAuthMsg("রেজিস্ট্রেশন করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+                }
+            } catch (e) {
+                showAuthMsg("নেটওয়ার্ক সমস্যা: " + e.message);
+            } finally {
+                spinner.classList.add('hidden');
             }
         }
 
-        // 🚪 Logout Handler
-        async function handleLogout() {
-            await supabase.auth.signOut();
-            location.reload();
+        // 🔑 Login Function
+        async function handleLogin() {
+            clearAuthMsg();
+            const email = document.getElementById('auth-email').value.trim().toLowerCase();
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) return showAuthMsg("ইমেইল ও পাসওয়ার্ড প্রদান করুন।");
+
+            const spinner = document.getElementById('login-spinner');
+            spinner.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}&password=eq.${password}`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+
+                const members = await res.json();
+
+                if (members.length > 0) {
+                    currentUser = members[0];
+                    localStorage.setItem('family_user', JSON.stringify(currentUser));
+                    showAppScreen();
+                } else {
+                    showAuthMsg("ভুল ইমেইল অথবা পাসওয়ার্ড দিয়েছেন!");
+                }
+            } catch (e) {
+                showAuthMsg("লগইন করা সম্ভব হয়নি: " + e.message);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // 🚪 Logout Function
+        function handleLogout() {
+            localStorage.removeItem('family_user');
+            currentUser = null;
+            showAuthScreen();
         }
 
         function showAuthMsg(text, isError = true) {
@@ -260,8 +276,7 @@
         }
 
         function clearAuthMsg() {
-            const msgBox = document.getElementById('auth-message');
-            msgBox.classList.add('hidden');
+            document.getElementById('auth-message').classList.add('hidden');
         }
 
         function showAppScreen() {
@@ -270,9 +285,8 @@
             document.getElementById('bottom-nav').classList.remove('hidden');
             document.getElementById('user-profile-header').classList.remove('hidden');
 
-            const displayName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'সদস্য';
-            document.getElementById('user-display-name').innerText = displayName;
-            document.getElementById('author-name').value = displayName;
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('author-name').value = currentUser.name;
 
             fetchPosts();
         }
@@ -301,11 +315,8 @@
             const container = document.getElementById('posts-container');
 
             try {
-                const response = await fetch(`${SUPABASE_URL}?select=*&order=created_at.desc`, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
+                const response = await fetch(`${SUPABASE_POSTS}?select=*&order=created_at.desc`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -318,7 +329,7 @@
         }
 
         async function createPost() {
-            const author = document.getElementById('author-name').value || 'পারিবারিক সদস্য';
+            const author = currentUser ? currentUser.name : 'পারিবারিক সদস্য';
             const category = document.getElementById('post-category').value;
             const content = document.getElementById('post-text').value.trim();
             const statusLabel = document.getElementById('upload-status');
@@ -349,8 +360,7 @@
                     if (uploadRes.ok) {
                         uploadedMediaUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     } else {
-                        const err = await uploadRes.json();
-                        alert("ফাইল আপলোড হতে পারেনি: " + (err.message || 'Storage Access Denied'));
+                        alert("ফাইল আপলোড হতে পারেনি।");
                         spinner.classList.add('hidden');
                         btn.disabled = false;
                         statusLabel.innerText = '';
@@ -365,14 +375,13 @@
             const categoryLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
 
             const payload = {
-                user_id: currentUser ? currentUser.id : null,
                 author_name: `${author}${categoryLabel}`,
                 content: content || 'মিডিয়া ফাইল শেয়ার করেছেন',
                 media_url: uploadedMediaUrl
             };
 
             try {
-                const response = await fetch(SUPABASE_URL, {
+                const response = await fetch(SUPABASE_POSTS, {
                     method: 'POST',
                     headers: {
                         'apikey': SUPABASE_KEY,
@@ -391,8 +400,7 @@
                     statusLabel.innerText = '';
                     fetchPosts();
                 } else {
-                    const errData = await response.json();
-                    alert("পোস্ট সাবমিট করা যায়নি: " + (errData.message || response.statusText));
+                    alert("পোস্ট সাবমিট করা যায়নি।");
                 }
             } catch (err) {
                 alert("নেটওয়ার্ক সমস্যা: " + err.message);
@@ -412,12 +420,9 @@
             }
 
             try {
-                const response = await fetch(`${SUPABASE_URL}?id=eq.${postId}`, {
+                const response = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
                     method: 'DELETE',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
 
                 if (response.ok) {
