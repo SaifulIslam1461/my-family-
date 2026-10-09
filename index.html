@@ -51,7 +51,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-20">
+<body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-24">
 
     <!-- Header Bar -->
     <header class="bg-emerald-800 text-white p-4 sticky top-0 z-40 shadow-md flex justify-between items-center">
@@ -147,81 +147,123 @@
             </button>
         </div>
 
-        <!-- Members Box -->
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3 border-l-4 border-yellow-500">
-            <div class="flex justify-between items-center border-b dark:border-gray-700 pb-2">
-                <h3 class="text-xs font-bold flex items-center gap-2 text-emerald-800 dark:text-yellow-400">
-                    <i class="fa-solid fa-users text-sm"></i>
-                    <span>পরিবারের নিবন্ধিত সদস্যবৃন্দ</span>
-                </h3>
-                <span id="member-count" class="text-[11px] bg-emerald-800 text-white px-2 py-0.5 rounded-full font-bold">০ জন</span>
-            </div>
-            <div id="members-list" class="flex flex-wrap gap-2 pt-1">
-                <p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>
-            </div>
-        </div>
-
-        <!-- Install App Button -->
-        <div class="flex justify-end">
-            <button onclick="triggerAppInstall()" class="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-emerald-950 font-bold text-xs px-4 py-2 rounded-xl shadow-md transition flex items-center gap-2 border border-yellow-300/50">
-                <i class="fa-solid fa-download text-sm"></i>
-                <span>অ্যাপ ইনস্টল করুন (Install App)</span>
-            </button>
-        </div>
-
-        <!-- Post Form -->
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
-            <div class="flex gap-2 items-center">
-                <label for="instant-avatar-input" class="cursor-pointer relative flex-shrink-0" title="ছবি পরিবর্তন করতে চাপুন">
-                    <img id="form-user-avatar" src="" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-800 hidden">
-                    <div id="form-avatar-placeholder" class="w-10 h-10 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs border border-yellow-400">
-                        <i class="fa-solid fa-camera"></i>
+        <!-- TAB CONTENT CONTAINER -->
+        <div id="tab-content-container">
+            <!-- Feed Tab Content -->
+            <div id="section-feed" class="space-y-6">
+                <!-- Members Box -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3 border-l-4 border-yellow-500">
+                    <div class="flex justify-between items-center border-b dark:border-gray-700 pb-2">
+                        <h3 class="text-xs font-bold flex items-center gap-2 text-emerald-800 dark:text-yellow-400">
+                            <i class="fa-solid fa-users text-sm"></i>
+                            <span>পরিবারের নিবন্ধিত সদস্যবৃন্দ</span>
+                        </h3>
+                        <span id="member-count" class="text-[11px] bg-emerald-800 text-white px-2 py-0.5 rounded-full font-bold">০ জন</span>
                     </div>
-                </label>
-                <input type="file" id="instant-avatar-input" accept="image/*" class="hidden" onchange="updateProfileAvatar(event)">
-
-                <input type="text" id="author-name" readonly class="w-1/2 bg-gray-200 dark:bg-gray-600 p-2 rounded-lg text-xs font-bold dark:text-yellow-300 border dark:border-gray-500">
-                <select id="post-category" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
-                    <option value="general">সাধারণ বার্তা</option>
-                    <option value="archive">স্মৃতি/আর্কাইভ</option>
-                    <option value="islamic">ইসলামিক দিকনির্দেশনা</option>
-                </select>
-            </div>
-            
-            <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
-            
-            <div class="space-y-2 border-t dark:border-gray-700 pt-3">
-                <div class="flex items-center gap-2">
-                    <label for="media-file" class="cursor-pointer bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 dark:text-white transition">
-                        <i class="fa-solid fa-paperclip text-yellow-500"></i>
-                        <span id="file-label">ছবি বা ভিডিও ফাইল যুক্ত করুন</span>
-                    </label>
-                    <input type="file" id="media-file" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(event)">
+                    <div id="members-list" class="flex flex-wrap gap-2 pt-1">
+                        <p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>
+                    </div>
                 </div>
 
-                <div class="flex justify-between items-center gap-2">
-                    <p id="upload-status" class="text-[11px] text-gray-400 italic"></p>
-                    <button id="btn-create-post" onclick="createPost()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2">
-                        <span id="post-spinner" class="spinner hidden"></span>
-                        <span>পোস্ট করুন</span>
+                <!-- Install App Button -->
+                <div class="flex justify-end">
+                    <button onclick="triggerAppInstall()" class="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-emerald-950 font-bold text-xs px-4 py-2 rounded-xl shadow-md transition flex items-center gap-2 border border-yellow-300/50">
+                        <i class="fa-solid fa-download text-sm"></i>
+                        <span>অ্যাপ ইনস্টল করুন (Install App)</span>
                     </button>
                 </div>
-            </div>
-        </div>
 
-        <!-- Gallery Tabs / Filter -->
-        <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-2">
-            <p class="text-[11px] text-gray-400 text-center font-bold">ফাইল ভিউ ফিল্টার</p>
-            <div class="flex justify-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                <button onclick="setMediaView('all')" id="view-all" class="media-tab active text-xs px-3 py-1.5 rounded-md transition flex-1 text-center">সব পোস্ট</button>
-                <button onclick="setMediaView('photos')" id="view-photos" class="media-tab text-xs px-3 py-1.5 rounded-md transition flex-1 text-center flex items-center justify-center gap-1"><i class="fa-solid fa-images text-blue-400"></i> ছবি গ্যালারি</button>
-                <button onclick="setMediaView('videos')" id="view-videos" class="media-tab text-xs px-3 py-1.5 rounded-md transition flex-1 text-center flex items-center justify-center gap-1"><i class="fa-solid fa-film text-red-400"></i> ভিডিও গ্যালারি</button>
-            </div>
-        </div>
+                <!-- Post Form -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
+                    <div class="flex gap-2 items-center">
+                        <label for="instant-avatar-input" class="cursor-pointer relative flex-shrink-0" title="ছবি পরিবর্তন করতে চাপুন">
+                            <img id="form-user-avatar" src="" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-800 hidden">
+                            <div id="form-avatar-placeholder" class="w-10 h-10 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs border border-yellow-400">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </label>
+                        <input type="file" id="instant-avatar-input" accept="image/*" class="hidden" onchange="updateProfileAvatar(event)">
 
-        <!-- Feed Container -->
-        <div id="posts-container" class="space-y-4">
-            <p class="text-center text-sm text-gray-500">ডাটা লোড হচ্ছে...</p>
+                        <input type="text" id="author-name" readonly class="w-1/2 bg-gray-200 dark:bg-gray-600 p-2 rounded-lg text-xs font-bold dark:text-yellow-300 border dark:border-gray-500">
+                        <select id="post-category" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
+                            <option value="general">সাধারণ বার্তা</option>
+                            <option value="archive">স্মৃতি/আর্কাইভ</option>
+                            <option value="islamic">ইসলামিক দিকনির্দেশনা</option>
+                        </select>
+                    </div>
+                    
+                    <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
+                    
+                    <div class="space-y-2 border-t dark:border-gray-700 pt-3">
+                        <div class="flex items-center gap-2">
+                            <label for="media-file" class="cursor-pointer bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 dark:text-white transition">
+                                <i class="fa-solid fa-paperclip text-yellow-500"></i>
+                                <span id="file-label">ছবি বা ভিডিও ফাইল যুক্ত করুন</span>
+                            </label>
+                            <input type="file" id="media-file" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(event)">
+                        </div>
+
+                        <div class="flex justify-between items-center gap-2">
+                            <p id="upload-status" class="text-[11px] text-gray-400 italic"></p>
+                            <button id="btn-create-post" onclick="createPost()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+                                <span id="post-spinner" class="spinner hidden"></span>
+                                <span>পোস্ট করুন</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Tabs / Filter -->
+                <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-2">
+                    <p class="text-[11px] text-gray-400 text-center font-bold">ফাইল ভিউ ফিল্টার</p>
+                    <div class="flex justify-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                        <button onclick="setMediaView('all')" id="view-all" class="media-tab active text-xs px-3 py-1.5 rounded-md transition flex-1 text-center">সব পোস্ট</button>
+                        <button onclick="setMediaView('photos')" id="view-photos" class="media-tab text-xs px-3 py-1.5 rounded-md transition flex-1 text-center flex items-center justify-center gap-1"><i class="fa-solid fa-images text-blue-400"></i> ছবি গ্যালারি</button>
+                        <button onclick="setMediaView('videos')" id="view-videos" class="media-tab text-xs px-3 py-1.5 rounded-md transition flex-1 text-center flex items-center justify-center gap-1"><i class="fa-solid fa-film text-red-400"></i> ভিডিও গ্যালারি</button>
+                    </div>
+                </div>
+
+                <!-- Feed Container -->
+                <div id="posts-container" class="space-y-4">
+                    <p class="text-center text-sm text-gray-500">ডাটা লোড হচ্ছে...</p>
+                </div>
+            </div>
+
+            <!-- 🕋 AMAL MUHASABA TAB CONTENT -->
+            <div id="section-muhasaba" class="hidden space-y-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-yellow-500/40 space-y-4">
+                    <div class="flex justify-between items-center border-b dark:border-gray-700 pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-yellow-500 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open"></i>
+                                <span>ব্যক্তিগত আমলের মুহাসাবা</span>
+                            </h3>
+                            <p id="muhasaba-username" class="text-xs text-gray-400 mt-0.5">ব্যবহারকারী: ব্যক্তিগত</p>
+                        </div>
+                        <select id="muhasaba-month" onchange="renderMuhasabaTable()" class="bg-gray-100 dark:bg-gray-700 text-xs p-2 rounded-lg font-bold text-yellow-500 focus:outline-none border dark:border-gray-600">
+                            <option value="January">জানুয়ারি ২০২৬</option>
+                            <option value="February">ফেব্রুয়ারি ২০২৬</option>
+                            <option value="March">মার্চ ২০২৬</option>
+                            <option value="April">এপ্রিল ২০২৬</option>
+                            <option value="May">মে ২০২৬</option>
+                            <option value="June">জুন ২০২৬</option>
+                            <option value="July">জুলাই ২০২৬</option>
+                            <option value="August">আগস্ট ২০২৬</option>
+                            <option value="September">সেপ্টেম্বর ২০২৬</option>
+                            <option value="October">অক্টোবর ২০২৬</option>
+                            <option value="November">নভেম্বর ২০২৬</option>
+                            <option value="December">ডিসেম্বর ২০২৬</option>
+                        </select>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table id="muhasaba-table" class="w-full text-center border-collapse text-xs">
+                            <!-- Dynamically generated table -->
+                        </table>
+                    </div>
+                    <p class="text-[10px] text-gray-400 italic text-center">💡 টিপস: ঘরের উপর ক্লিক করলেই "হ্যাঁ" বা "না" পরিবর্তন হবে। ডেটা সম্পূর্ণ আপনার ডিভাইসে সুরক্ষিত থাকবে।</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -306,11 +348,12 @@
         <img id="modal-img" src="" class="max-w-full max-h-[90vh] rounded-lg">
     </div>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation Bar (Including Amal Muhasaba Tab) -->
     <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active text-yellow-400"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
         <button onclick="switchTab('islamic')" id="tab-islamic" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
+        <button onclick="switchTab('muhasaba')" id="tab-muhasaba" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-clipboard-check text-lg"></i><span>আমলের মুহাসাবা</span></button>
     </nav>
 
     <script>
@@ -343,50 +386,92 @@
         function triggerAppInstall() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    deferredPrompt = null;
-                });
+                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
             } else {
-                alert("অ্যাপটি ইনস্টল করতে ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিয়ে 'Add to Home screen' বা 'Install App' সিলেক্ট করুন।");
+                alert("অ্যাপটি ইনস্টল করতে ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিয়ে 'Add to Home screen' সিলেক্ট করুন।");
             }
+        }
+
+        // 📿 Amal Muhasaba Logic (Personal & Secure)
+        const amalList = ["ফজর", "যোহর", "আসর", "মাগরিব", "এশা"];
+
+        function renderMuhasabaTable() {
+            const table = document.getElementById('muhasaba-table');
+            const monthSelect = document.getElementById('muhasaba-month').value;
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const storageKey = `muhasaba_${userKey}_${monthSelect}`;
+            
+            let data = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+            let headerHTML = `<tr class="bg-emerald-800 text-yellow-300 font-bold border-b dark:border-gray-700">`;
+            headerHTML += `<th class="p-2 border-r dark:border-gray-700 text-left">আমল / তারিখ</th>`;
+            for (let d = 1; d <= 31; d++) {
+                headerHTML += `<th class="p-1 border-r dark:border-gray-700 text-[10px] w-8">${d}</th>`;
+            }
+            headerHTML += `</tr>`;
+
+            let bodyHTML = "";
+            amalList.forEach(amal => {
+                bodyHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40">`;
+                bodyHTML += `<td class="p-2 font-bold text-left border-r dark:border-gray-700 text-emerald-800 dark:text-yellow-400">${amal}</td>`;
+                
+                for (let d = 1; d <= 31; d++) {
+                    const val = data[`${amal}_${d}`] || '';
+                    const colorClass = val === 'হ্যাঁ' ? 'text-green-500 font-bold bg-green-500/10' : val === 'না' ? 'text-red-500 font-bold bg-red-500/10' : 'text-gray-400';
+                    bodyHTML += `<td onclick="toggleMuhasaba('${amal}', ${d})" class="p-1 border-r dark:border-gray-700 cursor-pointer text-center text-[11px] ${colorClass}">${val || '-'}</td>`;
+                }
+                bodyHTML += `</tr>`;
+            });
+
+            table.innerHTML = headerHTML + bodyHTML;
+        }
+
+        function toggleMuhasaba(amal, day) {
+            const monthSelect = document.getElementById('muhasaba-month').value;
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const storageKey = `muhasaba_${userKey}_${monthSelect}`;
+            
+            let data = JSON.parse(localStorage.getItem(storageKey)) || {};
+            const currentVal = data[`${amal}_${day}`];
+
+            if (!currentVal) {
+                data[`${amal}_${day}`] = 'হ্যাঁ';
+            } else if (currentVal === 'হ্যাঁ') {
+                data[`${amal}_${day}`] = 'না';
+            } else {
+                delete data[`${amal}_${day}`];
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify(data));
+            renderMuhasabaTable();
         }
 
         // 📞 Ringtone Functions
         function playRingtone() {
             const defaultRing = 'https://actions.google.com/sounds/v1/alarms/phone_ringing_multiple.ogg';
             const customRing = localStorage.getItem('family_ringtone_url') || defaultRing;
-            
             if (!callAudio) {
                 callAudio = new Audio(customRing);
                 callAudio.loop = true;
             }
-            callAudio.play().catch(e => console.log("Audio autoplay restricted:", e));
+            callAudio.play().catch(e => console.log(e));
         }
 
         function stopRingtone() {
-            if (callAudio) {
-                callAudio.pause();
-                callAudio.currentTime = 0;
-            }
+            if (callAudio) { callAudio.pause(); callAudio.currentTime = 0; }
         }
 
         async function uploadAndSaveRingtone() {
-            const fileInput = document.getElementById('settings-ringtone-file');
-            const file = fileInput.files[0];
+            const file = document.getElementById('settings-ringtone-file').files[0];
             const statusLabel = document.getElementById('ringtone-status');
+            if (!file) return alert("ফাইল সিলেক্ট করুন!");
 
-            if (!file) return alert("একটি অডিও (.mp3) ফাইল সিলেক্ট করুন!");
-
-            statusLabel.innerText = "রিংটোন আপলোড হচ্ছে...";
+            statusLabel.innerText = "আপলোড হচ্ছে...";
             try {
                 const cleanFileName = `ringtone_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                 const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': file.type || 'audio/mpeg'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'audio/mpeg' },
                     body: file
                 });
 
@@ -394,10 +479,7 @@
                     const audioUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     localStorage.setItem('family_ringtone_url', audioUrl);
                     statusLabel.innerText = "";
-                    alert("রিংটোন সফলভাবে আপলোড ও সেভ করা হয়েছে!");
-                } else {
-                    statusLabel.innerText = "";
-                    alert("আপলোড ব্যর্থ হয়েছে।");
+                    alert("রিংটোন সেভ হয়েছে!");
                 }
             } catch (e) {
                 statusLabel.innerText = "";
@@ -408,46 +490,31 @@
         function testRingtone() {
             playRingtone();
             setTimeout(() => { stopRingtone(); }, 5000);
-            alert("৫ সেকেন্ডের জন্য রিংটোন টেস্ট বাজানো হলো।");
+            alert("৫ সেকেন্ডের জন্য টেস্ট বাজানো হলো।");
         }
 
         function startVideoCall() {
-            if (!currentUser) return alert("ভিডিও কল করতে প্রথমে লগইন করুন!");
-            
+            if (!currentUser) return alert("লগইন করুন!");
             playRingtone();
             document.getElementById('call-modal').classList.remove('hidden');
 
-            const domain = 'meet.jit.si';
             const options = {
                 roomName: 'FamilyHeritage_Secure_Room_2026',
                 width: '100%',
                 height: '100%',
                 parentNode: document.querySelector('#jitsi-container'),
                 userInfo: { displayName: currentUser.name },
-                configOverwrite: {
-                    startWithAudioMuted: false,
-                    startWithVideoMuted: false,
-                    prejoinPageEnabled: false,
-                    toolbarConfig: { alwaysVisible: true }
-                },
-                interfaceConfigOverwrite: {
-                    SHOW_JITSI_WATERMARK: false,
-                    SHOW_WATERMARK_FOR_GUESTS: false
-                }
+                configOverwrite: { startWithAudioMuted: false, startWithVideoMuted: false, prejoinPageEnabled: false }
             };
 
             if (jitsiApi) jitsiApi.dispose();
-            jitsiApi = new JitsiMeetExternalAPI(domain, options);
-            
+            jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', options);
             setTimeout(() => { stopRingtone(); }, 3000);
         }
 
         function endVideoCall() {
             stopRingtone();
-            if (jitsiApi) {
-                jitsiApi.dispose();
-                jitsiApi = null;
-            }
+            if (jitsiApi) { jitsiApi.dispose(); jitsiApi = null; }
             document.getElementById('call-modal').classList.add('hidden');
         }
 
@@ -480,9 +547,7 @@
 
         async function changeAppIconFromSettings() {
             const file = document.getElementById('settings-app-icon-file').files[0];
-            if (!file) return alert("একটি আইকন ছবি নির্বাচন করুন!");
-
-            alert("অ্যাপ আইকন আপলোড হচ্ছে...");
+            if (!file) return alert("ছবি দিন!");
             try {
                 const cleanFileName = `app_icon_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                 const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
@@ -490,248 +555,146 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
                     body: file
                 });
-
                 if (uploadRes.ok) {
                     const iconUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     applyAppIcon(iconUrl);
                     localStorage.setItem('family_app_icon', iconUrl);
-                    alert("অ্যাপ আইকন সফলভাবে কাস্টমাইজ করা হয়েছে!");
+                    alert("আইকন আপডেট হয়েছে!");
                 }
-            } catch (e) {
-                alert("ত্রুটি: " + e.message);
-            }
+            } catch (e) { alert(e.message); }
         }
 
-        function resetAppIcon() {
-            localStorage.removeItem('family_app_icon');
-            location.reload();
-        }
+        function resetAppIcon() { localStorage.removeItem('family_app_icon'); location.reload(); }
 
         function openSettingsModal() {
-            const pin = prompt("এডমিন সেটিংস প্যানেলে প্রবেশ করতে মাস্টার পিন (PIN) লিখুন:");
+            const pin = prompt("মাস্টার পিন দিন:");
             if (pin === DELETE_PIN) {
                 document.getElementById('settings-modal').classList.remove('hidden');
                 loadSettingsMembers();
-            } else if (pin) {
-                alert("ভুল পিন কোড!");
-            }
+            } else if (pin) { alert("ভুল পিন!"); }
         }
 
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
+        function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
 
         async function loadSettingsMembers() {
             const container = document.getElementById('settings-members-list');
-            container.innerHTML = '<p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>';
-
             try {
-                const res = await fetch(`${SUPABASE_MEMBERS}?select=id,name,email,avatar_url&order=created_at.asc`, {
+                const res = await fetch(`${SUPABASE_MEMBERS}?select=id,name,email&order=created_at.asc`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
                 const members = await res.json();
-
                 if (members && members.length > 0) {
                     container.innerHTML = '';
                     members.forEach(m => {
                         container.innerHTML += `
                             <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-2 rounded-lg text-xs">
-                                <div>
-                                    <p class="font-bold dark:text-white">${m.name}</p>
-                                    <p class="text-[10px] text-gray-400">${m.email}</p>
-                                </div>
-                                <button onclick="deleteMember('${m.id}', '${m.name}')" class="bg-red-500 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded font-bold">
-                                    <i class="fa-solid fa-trash"></i> রিমুভ
-                                </button>
+                                <div><p class="font-bold dark:text-white">${m.name}</p><p class="text-[10px] text-gray-400">${m.email}</p></div>
+                                <button onclick="deleteMember('${m.id}', '${m.name}')" class="bg-red-500 text-white text-[10px] px-2 py-1 rounded font-bold">রিমুভ</button>
                             </div>
                         `;
                     });
                 }
-            } catch (e) {
-                container.innerHTML = '<p class="text-xs text-red-400">সদস্য তালিকা লোড করা যায়নি</p>';
-            }
+            } catch (e) { container.innerHTML = '<p class="text-xs text-red-400">লোড হয়নি</p>'; }
         }
 
-        async function deleteMember(memberId, memberName) {
-            if (!confirm(`আপনি কি নিশ্চিত যে "${memberName}" কে রিমুভ করতে চান?`)) return;
-
-            try {
-                const res = await fetch(`${SUPABASE_MEMBERS}?id=eq.${memberId}`, {
-                    method: 'DELETE',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-
-                if (res.ok) {
-                    alert(`${memberName} কে সফলভাবে রিমুভ করা হয়েছে।`);
-                    loadSettingsMembers();
-                    fetchMembers();
-                }
-            } catch (e) {
-                alert("ত্রুটি: " + e.message);
-            }
+        async function deleteMember(id, name) {
+            if (!confirm(`নিশ্চিত ডিলিট ${name}?`)) return;
+            await fetch(`${SUPABASE_MEMBERS}?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            loadSettingsMembers();
+            fetchMembers();
         }
 
         async function changeBannerFromSettings() {
             const file = document.getElementById('settings-banner-file').files[0];
-            if (!file) return alert("একটি ছবি নির্বাচন করুন!");
-
-            try {
-                const cleanFileName = `banner_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
-                    body: file
-                });
-
-                if (uploadRes.ok) {
-                    const newBannerUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
-                    document.getElementById('banner-img').src = newBannerUrl;
-                    localStorage.setItem('family_banner_url', newBannerUrl);
-                    alert("পারিবারিক ব্যানার আপডেট করা হয়েছে!");
-                }
-            } catch (e) {
-                alert("ত্রুটি: " + e.message);
+            if (!file) return;
+            const cleanFileName = `banner_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+            const res = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
+                body: file
+            });
+            if (res.ok) {
+                const url = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                document.getElementById('banner-img').src = url;
+                localStorage.setItem('family_banner_url', url);
+                alert("ব্যানার আপডেট হয়েছে!");
             }
         }
 
         function publishNotice() {
             const text = document.getElementById('settings-notice-input').value.trim();
-            if (!text) return alert("নোটিশ লিখুন!");
-
+            if (!text) return;
             localStorage.setItem('family_announcement', text);
             document.getElementById('announcement-text').innerText = text;
             document.getElementById('announcement-box').classList.remove('hidden');
-            alert("নোটিশ প্রকাশ করা হয়েছে!");
+            alert("নোটিশ দেওয়া হয়েছে!");
         }
 
         function clearNotice() {
             localStorage.removeItem('family_announcement');
             document.getElementById('announcement-box').classList.add('hidden');
-            document.getElementById('settings-notice-input').value = '';
-            alert("নোটিশ মুছে ফেলা হয়েছে!");
+            alert("নোটিশ মোছা হয়েছে!");
         }
 
-        async function updateProfileAvatar(event) {
-            const file = event.target.files[0];
+        async function updateProfileAvatar(e) {
+            const file = e.target.files[0];
             if (!file || !currentUser) return;
-
-            const statusLabel = document.getElementById('upload-status');
-            statusLabel.innerText = "প্রোফাইল ছবি আপলোড হচ্ছে...";
-
-            try {
-                const cleanFileName = `avatar_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
-                    body: file
+            const cleanFileName = `avatar_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+            const res = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
+                body: file
+            });
+            if (res.ok) {
+                const url = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                await fetch(`${SUPABASE_MEMBERS}?email=eq.${currentUser.email}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ avatar_url: url })
                 });
-
-                if (uploadRes.ok) {
-                    const avatarUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
-                    
-                    await fetch(`${SUPABASE_MEMBERS}?email=eq.${currentUser.email}`, {
-                        method: 'PATCH',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ avatar_url: avatarUrl })
-                    });
-
-                    currentUser.avatar_url = avatarUrl;
-                    localStorage.setItem('family_user', JSON.stringify(currentUser));
-                    
-                    showAppScreen();
-                    statusLabel.innerText = "";
-                    alert("প্রোফাইল ছবি সফলভাবে যুক্ত হয়েছে!");
-                }
-            } catch (e) {
-                alert("ত্রুটি: " + e.message);
-            } finally {
-                statusLabel.innerText = "";
+                currentUser.avatar_url = url;
+                localStorage.setItem('family_user', JSON.stringify(currentUser));
+                showAppScreen();
+                alert("প্রোফাইল ছবি আপডেট হয়েছে!");
             }
         }
 
         async function handleSignUp() {
-            clearAuthMsg();
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const password = document.getElementById('auth-password').value;
-            const avatarFile = document.getElementById('reg-avatar').files[0];
+            if (!name || !email || !password) return showAuthMsg("সব ফিল্ড পূরণ করুন।");
 
-            if (!name || !email || !password) return showAuthMsg("নাম, ইমেইল এবং পাসওয়ার্ড দিন।");
-
-            const spinner = document.getElementById('signup-spinner');
-            spinner.classList.remove('hidden');
-
-            try {
-                const checkRes = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                const existing = await checkRes.json();
-
-                if (existing.length > 0) {
-                    spinner.classList.add('hidden');
-                    return showAuthMsg("এই ইমেইল দিয়ে ইতোমধ্যে অ্যাকাউন্ট আছে।");
-                }
-
-                let avatarUrl = null;
-                if (avatarFile) {
-                    const cleanFileName = `avatar_${Date.now()}_${avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                    const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
-                        method: 'POST',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
-                        body: avatarFile
-                    });
-                    if (uploadRes.ok) {
-                        avatarUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
-                    }
-                }
-
-                const insertRes = await fetch(SUPABASE_MEMBERS, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-                    body: JSON.stringify({ name, email, password, avatar_url: avatarUrl })
-                });
-
-                if (insertRes.ok) {
-                    const createdUser = await insertRes.json();
-                    currentUser = createdUser[0];
-                    localStorage.setItem('family_user', JSON.stringify(currentUser));
-                    showAppScreen();
-                }
-            } catch (e) {
-                showAuthMsg("ত্রুটি: " + e.message);
-            } finally {
-                spinner.classList.add('hidden');
-            }
+            const res = await fetch(SUPABASE_MEMBERS, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+                body: JSON.stringify({ name, email, password })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                currentUser = data[0];
+                localStorage.setItem('family_user', JSON.stringify(currentUser));
+                showAppScreen();
+            } else { showAuthMsg("রেজিস্ট্রেশন ব্যর্থ!"); }
         }
 
         async function handleLogin() {
-            clearAuthMsg();
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const password = document.getElementById('auth-password').value;
-
             if (!email || !password) return showAuthMsg("ইমেইল ও পাসওয়ার্ড দিন।");
 
-            const spinner = document.getElementById('login-spinner');
-            spinner.classList.remove('hidden');
-
-            try {
-                const res = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}&password=eq.${password}`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                const members = await res.json();
-
-                if (members.length > 0) {
-                    currentUser = members[0];
-                    localStorage.setItem('family_user', JSON.stringify(currentUser));
-                    showAppScreen();
-                } else {
-                    showAuthMsg("ভুল ইমেইল অথবা পাসওয়ার্ড!");
-                }
-            } catch (e) {
-                showAuthMsg("ত্রুটি: " + e.message);
-            } finally {
-                spinner.classList.add('hidden');
-            }
+            const res = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}&password=eq.${password}`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const members = await res.json();
+            if (members.length > 0) {
+                currentUser = members[0];
+                localStorage.setItem('family_user', JSON.stringify(currentUser));
+                showAppScreen();
+            } else { showAuthMsg("ভুল তথ্য!"); }
         }
 
         function handleLogout() {
@@ -740,16 +703,14 @@
             showAuthScreen();
         }
 
-        function showAuthMsg(text) {
-            const msgBox = document.getElementById('auth-message');
-            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-700');
-            msgBox.classList.add('bg-red-100', 'text-red-700');
-            msgBox.innerText = text;
+        function showAuthMsg(t) {
+            const m = document.getElementById('auth-message');
+            m.classList.remove('hidden', 'bg-red-100', 'text-red-700');
+            m.classList.add('bg-red-100', 'text-red-700');
+            m.innerText = t;
         }
 
-        function clearAuthMsg() {
-            document.getElementById('auth-message').classList.add('hidden');
-        }
+        function clearAuthMsg() { document.getElementById('auth-message').classList.add('hidden'); }
 
         function showAppScreen() {
             document.getElementById('auth-screen').classList.add('hidden');
@@ -759,6 +720,7 @@
 
             document.getElementById('user-display-name').innerText = currentUser.name;
             document.getElementById('author-name').value = currentUser.name;
+            document.getElementById('muhasaba-username').innerText = `নাম: ${currentUser.name}`;
 
             if (currentUser.avatar_url) {
                 document.getElementById('header-avatar').src = currentUser.avatar_url;
@@ -766,14 +728,11 @@
                 document.getElementById('form-user-avatar').src = currentUser.avatar_url;
                 document.getElementById('form-user-avatar').classList.remove('hidden');
                 document.getElementById('form-avatar-placeholder').classList.add('hidden');
-            } else {
-                document.getElementById('header-avatar').classList.add('hidden');
-                document.getElementById('form-user-avatar').classList.add('hidden');
-                document.getElementById('form-avatar-placeholder').classList.remove('hidden');
             }
 
             fetchMembers();
             fetchPosts();
+            renderMuhasabaTable();
         }
 
         function showAuthScreen() {
@@ -786,148 +745,76 @@
         async function fetchMembers() {
             const container = document.getElementById('members-list');
             const countBadge = document.getElementById('member-count');
-
-            try {
-                const res = await fetch(`${SUPABASE_MEMBERS}?select=name,email,avatar_url&order=created_at.asc`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            const res = await fetch(`${SUPABASE_MEMBERS}?select=name,avatar_url&order=created_at.asc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const members = await res.json();
+            if (members) {
+                countBadge.innerText = `${members.length} জন`;
+                container.innerHTML = '';
+                members.forEach(m => {
+                    const av = m.avatar_url ? `<img src="${m.avatar_url}" class="w-6 h-6 rounded-full object-cover">` : `<i class="fa-solid fa-circle-user text-emerald-600"></i>`;
+                    container.innerHTML += `<div class="bg-gray-100 dark:bg-gray-700 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border dark:border-gray-600">${av}<span class="font-bold">${m.name}</span></div>`;
                 });
-                const members = await res.json();
-
-                if (members && members.length > 0) {
-                    countBadge.innerText = `${members.length} জন`;
-                    container.innerHTML = '';
-                    members.forEach(m => {
-                        const avatarSrc = m.avatar_url 
-                            ? `<img src="${m.avatar_url}" class="w-6 h-6 rounded-full object-cover">`
-                            : `<i class="fa-solid fa-circle-user text-emerald-600 dark:text-yellow-400 text-base"></i>`;
-
-                        container.innerHTML += `
-                            <div class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border dark:border-gray-600 shadow-sm">
-                                ${avatarSrc}
-                                <span class="font-bold">${m.name}</span>
-                            </div>
-                        `;
-                    });
-                }
-            } catch (e) {
-                container.innerHTML = `<p class="text-xs text-red-400">সদস্য তালিকা লোড করা যায়নি</p>`;
             }
         }
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                if (file.size > 50 * 1024 * 1024) {
-                    alert("ফাইল সাইজ ৫০ MB এর বেশি!");
-                    event.target.value = '';
-                    return;
-                }
-                selectedFile = file;
-                document.getElementById('file-label').innerText = `ফাইল: ${file.name.substring(0, 12)}...`;
-            }
+        function handleFileSelect(e) {
+            selectedFile = e.target.files[0];
+            if (selectedFile) document.getElementById('file-label').innerText = `ফাইল: ${selectedFile.name.substring(0, 10)}...`;
         }
 
         async function fetchPosts() {
-            const container = document.getElementById('posts-container');
-            try {
-                const response = await fetch(`${SUPABASE_POSTS}?select=*&order=created_at.desc`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                cachedPosts = await response.json();
-                renderPosts();
-            } catch (err) {
-                container.innerHTML = `<p class="text-center text-sm text-red-500">পোস্ট লোড করতে সমস্যা হয়েছে</p>`;
-            }
+            const res = await fetch(`${SUPABASE_POSTS}?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            cachedPosts = await res.json();
+            renderPosts();
         }
 
         async function createPost() {
             const author = currentUser ? currentUser.name : 'সদস্য';
             const category = document.getElementById('post-category').value;
             const content = document.getElementById('post-text').value.trim();
-            const statusLabel = document.getElementById('upload-status');
-            
-            if (!content && !selectedFile) return alert("কিছু লিখুন বা ফাইল যুক্ত করুন!");
-
-            const spinner = document.getElementById('post-spinner');
-            const btn = document.getElementById('btn-create-post');
-            spinner.classList.remove('hidden');
-            btn.disabled = true;
+            if (!content && !selectedFile) return alert("কিছু লিখুন!");
 
             let uploadedMediaUrl = null;
-
             if (selectedFile) {
-                statusLabel.innerText = "ফাইল আপলোড হচ্ছে...";
-                try {
-                    const cleanFileName = `${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                    const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
-                        method: 'POST',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': selectedFile.type || 'application/octet-stream' },
-                        body: selectedFile
-                    });
-
-                    if (uploadRes.ok) {
-                        uploadedMediaUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-
-            statusLabel.innerText = "পোস্ট সাবমিট হচ্ছে...";
-            const categoryLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
-
-            const payload = {
-                author_name: `${author}${categoryLabel}`,
-                author_avatar: currentUser ? currentUser.avatar_url : null,
-                content: content || 'মিডিয়া ফাইল শেয়ার করেছেন',
-                media_url: uploadedMediaUrl
-            };
-
-            try {
-                const response = await fetch(SUPABASE_POSTS, {
+                const cleanFileName = `${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                const res = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                     method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-                    body: JSON.stringify(payload)
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': selectedFile.type },
+                    body: selectedFile
                 });
-
-                if (response.ok) {
-                    document.getElementById('post-text').value = '';
-                    document.getElementById('media-file').value = '';
-                    document.getElementById('file-label').innerText = 'ছবি বা ভিডিও ফাইল যুক্ত করুন';
-                    selectedFile = null;
-                    fetchPosts();
-                }
-            } catch (err) {
-                alert("ত্রুটি: " + err.message);
-            } finally {
-                spinner.classList.add('hidden');
-                btn.disabled = false;
-                statusLabel.innerText = '';
+                if (res.ok) uploadedMediaUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
             }
+
+            const catLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
+            await fetch(SUPABASE_POSTS, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+                body: JSON.stringify({ author_name: `${author}${catLabel}`, author_avatar: currentUser?.avatar_url, content: content || 'মিডিয়া ফাইল', media_url: uploadedMediaUrl })
+            });
+
+            document.getElementById('post-text').value = '';
+            document.getElementById('media-file').value = '';
+            document.getElementById('file-label').innerText = 'ছবি বা ভিডিও ফাইল যুক্ত করুন';
+            selectedFile = null;
+            fetchPosts();
         }
 
-        async function deletePost(postId) {
-            const inputPin = prompt("পোস্ট ডিলিট করতে মাস্টার পিন (PIN) দিন:");
-            if (inputPin !== DELETE_PIN) return alert("ভুল পিন কোড!");
-
-            try {
-                const response = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
-                    method: 'DELETE',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-
-                if (response.ok) {
-                    alert("পোস্ট ডিলিট হয়েছে!");
-                    fetchPosts();
-                }
-            } catch (err) {
-                alert("ত্রুটি: " + err.message);
-            }
+        async function deletePost(id) {
+            const pin = prompt("পিন দিন:");
+            if (pin !== DELETE_PIN) return alert("ভুল পিন!");
+            await fetch(`${SUPABASE_POSTS}?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            fetchPosts();
         }
 
         function isVideo(url) {
-            if (!url) return false;
-            return ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp', '.mkv'].some(ext => url.toLowerCase().includes(ext));
+            return ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp', '.mkv'].some(ext => url?.toLowerCase().includes(ext));
         }
 
         function setMediaView(view) {
@@ -937,91 +824,41 @@
             renderPosts();
         }
 
-        function openModal(src) {
-            document.getElementById('modal-img').src = src;
-            document.getElementById('image-modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('image-modal').classList.add('hidden');
-        }
+        function openModal(src) { document.getElementById('modal-img').src = src; document.getElementById('image-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('image-modal').classList.add('hidden'); }
 
         function renderPosts() {
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
-
-            if (!cachedPosts || cachedPosts.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">কোনো পোস্ট নেই।</p>`;
-                return;
-            }
+            if (!cachedPosts.length) { container.innerHTML = `<p class="text-center text-sm text-gray-500">কোনো পোস্ট নেই।</p>`; return; }
 
             let filtered = cachedPosts;
-
             if (currentTab === 'archive') {
-                filtered = cachedPosts.filter(p => {
-                    const isIslamic = p.author_name && p.author_name.includes('[ইসলামিক]');
-                    const isExplicitArchive = p.author_name && p.author_name.includes('[আর্কাইভ]');
-                    return !isIslamic && (isExplicitArchive || p.media_url);
-                });
+                filtered = cachedPosts.filter(p => !p.author_name?.includes('[ইসলামিক]') && (p.author_name?.includes('[আর্কাইভ]') || p.media_url));
             } else if (currentTab === 'islamic') {
-                filtered = cachedPosts.filter(p => p.author_name && p.author_name.includes('[ইসলামিক]'));
+                filtered = cachedPosts.filter(p => p.author_name?.includes('[ইসলামিক]'));
             }
 
-            if (mediaView === 'photos') {
-                filtered = filtered.filter(p => p.media_url && !isVideo(p.media_url));
-            } else if (mediaView === 'videos') {
-                filtered = filtered.filter(p => p.media_url && isVideo(p.media_url));
-            }
+            if (mediaView === 'photos') filtered = filtered.filter(p => p.media_url && !isVideo(p.media_url));
+            else if (mediaView === 'videos') filtered = filtered.filter(p => p.media_url && isVideo(p.media_url));
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ভিউতে কিছু পাওয়া যায়নি।</p>`;
-                return;
-            }
-
-            if (mediaView === 'photos') {
-                let gridHtml = `<div class="grid grid-cols-2 gap-3">`;
-                filtered.forEach(post => {
-                    gridHtml += `
-                        <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-1">
-                            <img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full h-36 object-cover cursor-pointer">
-                            <div class="flex justify-between items-center text-[10px] text-gray-400">
-                                <span class="truncate">${post.author_name}</span>
-                                <button onclick="deletePost('${post.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
-                gridHtml += `</div>`;
-                container.innerHTML = gridHtml;
-                return;
-            }
+            if (!filtered.length) { container.innerHTML = `<p class="text-center text-sm text-gray-500">কিছু পাওয়া যায়নি।</p>`; return; }
 
             filtered.forEach(post => {
-                const hasVideo = isVideo(post.media_url);
-                const avatarElement = post.author_avatar 
-                    ? `<img src="${post.author_avatar}" class="w-8 h-8 rounded-full object-cover border border-emerald-800">`
-                    : `<div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>`;
+                const av = post.author_avatar ? `<img src="${post.author_avatar}" class="w-8 h-8 rounded-full object-cover">` : `<div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xs font-bold">${post.author_name?.[0] || 'U'}</div>`;
+                const mediaHTML = post.media_url ? (isVideo(post.media_url) ? `<video src="${post.media_url}" controls playsinline class="rounded-lg w-full max-h-80 bg-black"></video>` : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer">`) : '';
 
                 container.innerHTML += `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center space-x-2">
-                                ${avatarElement}
-                                <div>
-                                    <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'সদস্য'}</h4>
-                                    <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
-                                </div>
+                                ${av}
+                                <div><h4 class="font-bold text-xs dark:text-gray-200">${post.author_name}</h4><p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p></div>
                             </div>
-                            <button onclick="deletePost('${post.id}')" class="text-xs text-red-500 hover:text-red-700 p-1 font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-trash"></i> ডিলিট
-                            </button>
+                            <button onclick="deletePost('${post.id}')" class="text-xs text-red-500 font-bold"><i class="fa-solid fa-trash"></i></button>
                         </div>
                         <p class="text-sm dark:text-gray-300">${post.content}</p>
-                        ${post.media_url ? (
-                            hasVideo 
-                            ? `<video src="${post.media_url}" controls playsinline class="rounded-lg w-full max-h-80 bg-black"></video>` 
-                            : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer">`
-                        ) : ''}
+                        ${mediaHTML}
                     </div>
                 `;
             });
@@ -1029,30 +866,29 @@
 
         function switchTab(tab) {
             currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-yellow-400'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('text-gray-400'));
-            
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'text-yellow-400'); b.classList.add('text-gray-400'); });
             const activeBtn = document.getElementById(`tab-${tab}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active', 'text-yellow-400');
-                activeBtn.classList.remove('text-gray-400');
-            }
+            if (activeBtn) { activeBtn.classList.add('active', 'text-yellow-400'); activeBtn.classList.remove('text-gray-400'); }
 
+            const feedSec = document.getElementById('section-feed');
+            const muhasabaSec = document.getElementById('section-muhasaba');
             const title = document.getElementById('tab-title');
             const subtitle = document.getElementById('tab-subtitle');
 
-            if (tab === 'feed') {
-                title.innerText = "পারিবারিক আর্কাইভ";
-                subtitle.innerText = '"ঈমান, একতা ও ঐতিহ্যের বন্ধন"';
-            } else if (tab === 'archive') {
-                title.innerText = "স্মৃতি ও মিডিয়া আর্কাইভ";
-                subtitle.innerText = '"পরিবারের গুরুত্বপূর্ণ ছবি ও স্মৃতিসমূহ"';
-            } else if (tab === 'islamic') {
-                title.innerText = "ইসলামিক কর্নার";
-                subtitle.innerText = '"দৈনন্দিন দোয়া, হাদিস ও ধর্মীয় উপদেশ"';
+            if (tab === 'muhasaba') {
+                feedSec.classList.add('hidden');
+                muhasabaSec.classList.remove('hidden');
+                title.innerText = "আমলের মুহাসাবা";
+                subtitle.innerText = '"নিজেকে হিসাব করুন, হিসাব নেওয়ার আগে"';
+                renderMuhasabaTable();
+            } else {
+                muhasabaSec.classList.add('hidden');
+                feedSec.classList.remove('hidden');
+                if (tab === 'feed') { title.innerText = "পারিবারিক আর্কাইভ"; subtitle.innerText = '"ঈমান, একতা ও ঐতিহ্যের বন্ধন"'; }
+                else if (tab === 'archive') { title.innerText = "স্মৃতি ও মিডিয়া আর্কাইভ"; subtitle.innerText = '"পরিবারের গুরুত্বপূর্ণ ছবি ও স্মৃতিসমূহ"'; }
+                else if (tab === 'islamic') { title.innerText = "ইসলামিক কর্নার"; subtitle.innerText = '"দৈনন্দিন দোয়া, হাদিস ও ধর্মীয় উপদেশ"'; }
+                renderPosts();
             }
-
-            renderPosts();
         }
     </script>
 </body>
