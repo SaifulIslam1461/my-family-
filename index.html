@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>পারিবারিক ঐতিহ্য - Family Heritage</title>
 
-    <!-- Supabase JS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <!-- Google Bangla Fonts & FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,14 +33,12 @@
             animation: spin 0.8s linear infinite;
             display: inline-block;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-20">
 
-    <!-- Top Navigation -->
+    <!-- Header -->
     <header class="bg-emerald-800 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
         <div class="flex items-center space-x-2 space-x-reverse">
             <i class="fa-solid fa-people-roof text-2xl text-yellow-400"></i>
@@ -52,10 +47,10 @@
         <span class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold">পাবলিক মোড</span>
     </header>
 
-    <!-- App Main Screen -->
-    <main id="app-screen" class="max-w-2xl mx-auto p-4 space-y-6">
+    <!-- Main Content -->
+    <main class="max-w-2xl mx-auto p-4 space-y-6">
 
-        <!-- Dynamic Header Banner -->
+        <!-- Banner -->
         <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white">
             <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=800" class="w-full h-36 object-cover opacity-40" alt="Banner">
             <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black/80 to-transparent w-full">
@@ -64,7 +59,7 @@
             </div>
         </div>
 
-        <!-- Create Post Section -->
+        <!-- Post Creation Form -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
             <div class="flex gap-2">
                 <input type="text" id="author-name" placeholder="আপনার নাম (যেমন: সাইফুল)" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
@@ -81,49 +76,152 @@
                 <input type="text" id="image-url" placeholder="ছবি/ভিডিও লিঙ্ক (ঐচ্ছিক)" class="text-xs p-2 bg-gray-100 dark:bg-gray-700 rounded w-2/3 dark:text-white border dark:border-gray-600">
                 <button id="btn-create-post" onclick="createPost()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2">
                     <span id="post-spinner" class="spinner hidden"></span>
-                    <span id="post-btn-text">পোস্ট করুন</span>
+                    <span>পোস্ট করুন</span>
                 </button>
             </div>
         </div>
 
-        <!-- Live Feed Container -->
+        <!-- Feed Area -->
         <div id="posts-container" class="space-y-4">
-            <p class="text-center text-sm text-gray-500">লোডিং হচ্ছে...</p>
+            <p class="text-center text-sm text-gray-500">ডাটা লোড হচ্ছে...</p>
         </div>
     </main>
 
-    <!-- Bottom Navigation Bar -->
-    <nav id="bottom-nav" class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active text-yellow-400"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
         <button onclick="switchTab('islamic')" id="tab-islamic" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
     </nav>
 
     <script>
-        const SUPABASE_URL = 'https://zwpoxufpeluqtdooeekr.supabase.co';
+        // Supabase Endpoint & Key
+        const SUPABASE_URL = 'https://zwpoxufpeluqtdooeekr.supabase.co/rest/v1/posts';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
-        let supabase = null;
         let currentTab = 'feed';
 
-        window.onload = () => {
-            try {
-                if (window.supabase) {
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    loadPosts();
-                    setupRealtime();
-                } else {
-                    document.getElementById('posts-container').innerHTML = `<p class="text-center text-sm text-red-500">Supabase ইন্টারফেস লোড হতে পারেনি। ইন্টারনেট কানেকশন চেক করুন।</p>`;
-                }
-            } catch (e) {
-                console.error("Init Error:", e);
-                document.getElementById('posts-container').innerHTML = `<p class="text-center text-sm text-red-500">অ্যাপ লোড করতে সমস্যা হয়েছে।</p>`;
-            }
-        };
+        // Direct Native Fetch API - No External SDK Required
+        async function fetchPosts() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = `<p class="text-center text-sm text-gray-500 py-4">লোডিং হচ্ছে...</p>`;
 
+            try {
+                const response = await fetch(`${SUPABASE_URL}?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const posts = await response.json();
+                renderPosts(posts);
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-100 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${err.message}</p>`;
+            }
+        }
+
+        // Create Post
+        async function createPost() {
+            const author = document.getElementById('author-name').value.trim() || 'পারিবারিক সদস্য';
+            const category = document.getElementById('post-category').value;
+            const content = document.getElementById('post-text').value.trim();
+            const media_url = document.getElementById('image-url').value.trim();
+            
+            if (!content) return alert("অনুগ্রহ করে কিছু লিখুন!");
+
+            const spinner = document.getElementById('post-spinner');
+            const btn = document.getElementById('btn-create-post');
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+
+            const categoryLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
+
+            const payload = {
+                user_id: '00000000-0000-0000-0000-000000000000',
+                author_name: `${author}${categoryLabel}`,
+                content: content,
+                media_url: media_url || null
+            };
+
+            try {
+                const response = await fetch(SUPABASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('post-text').value = '';
+                    document.getElementById('image-url').value = '';
+                    fetchPosts();
+                } else {
+                    const errData = await response.json();
+                    alert("পোস্ট সাবমিট করা যায়নি: " + (errData.message || response.statusText));
+                }
+            } catch (err) {
+                alert("নেটওয়ার্ক সমস্যা: " + err.message);
+            } finally {
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        // Render Feed
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '';
+
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি তৈরি করুন!</p>`;
+                return;
+            }
+
+            let filteredPosts = posts;
+            if (currentTab === 'archive') {
+                filteredPosts = posts.filter(p => p.media_url || (p.author_name && p.author_name.includes('[আর্কাইভ]')));
+            } else if (currentTab === 'islamic') {
+                filteredPosts = posts.filter(p => p.author_name && p.author_name.includes('[ইসলামিক]'));
+            }
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ট্যাবে এখনো কোনো পোস্ট পাওয়া যায়নি।</p>`;
+                return;
+            }
+
+            filteredPosts.forEach(post => {
+                container.innerHTML += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
+                                <div>
+                                    <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
+                                    <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-sm dark:text-gray-300">${post.content}</p>
+                        ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        // Switch Tabs
         function switchTab(tab) {
             currentTab = tab;
-            
+
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active', 'text-yellow-400');
                 btn.classList.add('text-gray-400');
@@ -149,115 +247,11 @@
                 subtitle.innerText = '"দৈনন্দিন দোয়া, হাদিস ও ধর্মীয় উপদেশ"';
             }
 
-            loadPosts();
+            fetchPosts();
         }
 
-        async function createPost() {
-            const author = document.getElementById('author-name').value.trim() || 'পারিবারিক সদস্য';
-            const category = document.getElementById('post-category').value;
-            const content = document.getElementById('post-text').value.trim();
-            const media_url = document.getElementById('image-url').value.trim();
-            
-            if (!content) return alert("অনুগ্রহ করে বার্তা বা পোস্টটি লিখুন!");
-
-            const postSpinner = document.getElementById('post-spinner');
-            const postBtn = document.getElementById('btn-create-post');
-            postSpinner.classList.remove('hidden');
-            postBtn.disabled = true;
-
-            const randomUserId = '00000000-0000-0000-0000-000000000000';
-
-            try {
-                const { error } = await supabase.from('posts').insert([
-                    { 
-                        user_id: randomUserId, 
-                        author_name: `${author} (${category === 'islamic' ? 'ইসলামিক' : category === 'archive' ? 'আর্কাইভ' : 'সাধারণ'})`, 
-                        content: content, 
-                        media_url: media_url || null 
-                    }
-                ]);
-
-                if (!error) {
-                    document.getElementById('post-text').value = '';
-                    document.getElementById('image-url').value = '';
-                    loadPosts();
-                } else {
-                    alert("পোস্ট করা সম্ভব হয়নি: " + error.message);
-                }
-            } catch (err) {
-                alert("ত্রুটি ঘটেছে: " + err.message);
-            } finally {
-                postSpinner.classList.add('hidden');
-                postBtn.disabled = false;
-            }
-        }
-
-        async function loadPosts() {
-            const container = document.getElementById('posts-container');
-            container.innerHTML = `<p class="text-center text-sm text-gray-500">লোডিং হচ্ছে...</p>`;
-
-            if (!supabase) return;
-
-            try {
-                const { data: posts, error } = await supabase
-                    .from('posts')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                container.innerHTML = '';
-
-                if (error) {
-                    container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-50 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${error.message}</p>`;
-                    return;
-                }
-
-                if (posts && posts.length > 0) {
-                    let filteredPosts = posts;
-                    if (currentTab === 'archive') {
-                        filteredPosts = posts.filter(p => p.media_url || (p.author_name && p.author_name.includes('আর্কাইভ')));
-                    } else if (currentTab === 'islamic') {
-                        filteredPosts = posts.filter(p => p.author_name && p.author_name.includes('ইসলামিক'));
-                    }
-
-                    if (filteredPosts.length === 0) {
-                        container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ট্যাবে এখনো কোনো পোস্ট নেই।</p>`;
-                        return;
-                    }
-
-                    filteredPosts.forEach(post => {
-                        container.innerHTML += `
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
-                                        <div>
-                                            <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
-                                            <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="text-sm dark:text-gray-300">${post.content}</p>
-                                ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ''}
-                            </div>
-                        `;
-                    });
-                } else {
-                    container.innerHTML = `<p class="text-center text-sm text-gray-500">এখনো কোনো পোস্ট করা হয়নি। প্রথম পোস্টটি আপনিই করুন!</p>`;
-                }
-            } catch (e) {
-                container.innerHTML = `<p class="text-center text-sm text-red-500">নেটওয়ার্ক এরর!</p>`;
-            }
-        }
-
-        function setupRealtime() {
-            if (!supabase) return;
-            supabase
-                .channel('public:posts')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => {
-                    loadPosts();
-                })
-                .subscribe();
-        }
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', fetchPosts);
     </script>
 </body>
 </html>
