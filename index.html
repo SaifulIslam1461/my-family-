@@ -232,36 +232,76 @@
             <!-- 🕋 AMAL MUHASABA TAB CONTENT -->
             <div id="section-muhasaba" class="hidden space-y-4">
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-yellow-500/40 space-y-4">
-                    <div class="flex justify-between items-center border-b dark:border-gray-700 pb-3">
+                    <!-- Top Info & Customization -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b dark:border-gray-700 pb-3 gap-3">
                         <div>
                             <h3 class="text-sm font-bold text-yellow-500 flex items-center gap-2">
                                 <i class="fa-solid fa-book-open"></i>
                                 <span>ব্যক্তিগত আমলের মুহাসাবা</span>
                             </h3>
-                            <p id="muhasaba-username" class="text-xs text-gray-400 mt-0.5">ব্যবহারকারী: ব্যক্তিগত</p>
+                            <div class="flex items-center gap-1 mt-1">
+                                <span class="text-xs text-gray-400">নাম:</span>
+                                <input type="text" id="muhasaba-name-input" onchange="updateMuhasabaName(this.value)" class="bg-gray-100 dark:bg-gray-700 text-xs px-2 py-0.5 rounded font-bold text-emerald-800 dark:text-yellow-300 border dark:border-gray-600 focus:outline-none w-36">
+                            </div>
                         </div>
-                        <select id="muhasaba-month" onchange="renderMuhasabaTable()" class="bg-gray-100 dark:bg-gray-700 text-xs p-2 rounded-lg font-bold text-yellow-500 focus:outline-none border dark:border-gray-600">
-                            <option value="January">জানুয়ারি ২০২৬</option>
-                            <option value="February">ফেব্রুয়ারি ২০২৬</option>
-                            <option value="March">মার্চ ২০২৬</option>
-                            <option value="April">এপ্রিল ২০২৬</option>
-                            <option value="May">মে ২০২৬</option>
-                            <option value="June">জুন ২০২৬</option>
-                            <option value="July">জুলাই ২০২৬</option>
-                            <option value="August">আগস্ট ২০২৬</option>
-                            <option value="September">সেপ্টেম্বর ২০২৬</option>
-                            <option value="October">অক্টোবর ২০২৬</option>
-                            <option value="November">নভেম্বর ২০২৬</option>
-                            <option value="December">ডিসেম্বর ২০২৬</option>
-                        </select>
+
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <select id="muhasaba-month" onchange="renderMuhasabaTable()" class="bg-gray-100 dark:bg-gray-700 text-xs p-2 rounded-lg font-bold text-yellow-500 focus:outline-none border dark:border-gray-600">
+                                <option value="জানুয়ারি">জানুয়ারি</option>
+                                <option value="ফেব্রুয়ারি">ফেব্রুয়ারি</option>
+                                <option value="মার্চ">মার্চ</option>
+                                <option value="এপ্রিল">এপ্রিল</option>
+                                <option value="মে">মে</option>
+                                <option value="জুন">জুন</option>
+                                <option value="জুলাই">জুলাই</option>
+                                <option value="আগস্ট">আগস্ট</option>
+                                <option value="সেপ্টেম্বর">সেপ্টেম্বর</option>
+                                <option value="অক্টোবর" selected>অক্টোবর</option>
+                                <option value="নভেম্বর">নভেম্বর</option>
+                                <option value="ডিসেম্বর">ডিসেম্বর</option>
+                            </select>
+
+                            <select id="muhasaba-year" onchange="renderMuhasabaTable()" class="bg-gray-100 dark:bg-gray-700 text-xs p-2 rounded-lg font-bold text-yellow-500 focus:outline-none border dark:border-gray-600">
+                                <option value="২০২৪">২০২৪</option>
+                                <option value="২০২৫">২০২৫</option>
+                                <option value="২০২৬" selected>২০২৬</option>
+                                <option value="২০২৭">২০২৭</option>
+                                <option value="২০২৮">২০২৮</option>
+                                <option value="২০২৯">২০২৯</option>
+                                <option value="২০৩০">২০৩০</option>
+                            </select>
+                        </div>
                     </div>
 
+                    <!-- Add Custom Amal Option -->
+                    <div class="flex gap-2 items-center bg-gray-50 dark:bg-gray-700/40 p-2 rounded-lg border dark:border-gray-700">
+                        <input type="text" id="new-amal-name" placeholder="নতুন আমল যোগ করুন (যেমন: তাহাজ্জুদ, কুরআন তিলাওয়াত)..." class="flex-1 bg-white dark:bg-gray-700 text-xs p-2 rounded-lg border dark:border-gray-600 focus:outline-none dark:text-white">
+                        <button onclick="addNewAmal()" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-1 flex-shrink-0">
+                            <i class="fa-solid fa-plus"></i> আমল যোগ
+                        </button>
+                    </div>
+
+                    <!-- Table -->
                     <div class="overflow-x-auto">
                         <table id="muhasaba-table" class="w-full text-center border-collapse text-xs">
-                            <!-- Dynamically generated table -->
+                            <!-- Dynamic Table -->
                         </table>
                     </div>
-                    <p class="text-[10px] text-gray-400 italic text-center">💡 টিপস: ঘরের উপর ক্লিক করলেই "হ্যাঁ" বা "না" পরিবর্তন হবে। ডেটা সম্পূর্ণ আপনার ডিভাইসে সুরক্ষিত থাকবে।</p>
+
+                    <!-- Submit / Save & Archive Box -->
+                    <div class="border-t dark:border-gray-700 pt-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <button onclick="saveCurrentMuhasaba()" class="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid fa-floppy-disk text-yellow-400"></i>
+                            <span>এই মাসের মুহাসাবা সেভ ও জমা করুন</span>
+                        </button>
+
+                        <div class="w-full sm:w-auto flex items-center gap-2">
+                            <span class="text-xs text-gray-400">সংরক্ষিত জমা:</span>
+                            <select id="saved-muhasaba-list" onchange="loadSavedMuhasaba(this.value)" class="bg-gray-100 dark:bg-gray-700 text-xs p-2 rounded-lg font-bold text-emerald-700 dark:text-yellow-300 border dark:border-gray-600 focus:outline-none">
+                                <option value="">-- জমা করা মাসসমূহ --</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -348,7 +388,7 @@
         <img id="modal-img" src="" class="max-w-full max-h-[90vh] rounded-lg">
     </div>
 
-    <!-- Bottom Navigation Bar (Including Amal Muhasaba Tab) -->
+    <!-- Bottom Navigation Bar -->
     <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active text-yellow-400"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
@@ -392,26 +432,32 @@
             }
         }
 
-        // 📿 Amal Muhasaba Logic (Personal & Secure)
-        const amalList = ["ফজর", "যোহর", "আসর", "মাগরিব", "এশা"];
+        // 📿 Advanced Amal Muhasaba Logic
+        function getDefaultAmals() {
+            return ["ফজর", "যোহর", "আসর", "মাগরিব", "এশা"];
+        }
 
         function renderMuhasabaTable() {
             const table = document.getElementById('muhasaba-table');
-            const monthSelect = document.getElementById('muhasaba-month').value;
+            const month = document.getElementById('muhasaba-month').value;
+            const year = document.getElementById('muhasaba-year').value;
             const userKey = currentUser ? currentUser.email : 'guest';
-            const storageKey = `muhasaba_${userKey}_${monthSelect}`;
-            
+            const storageKey = `muhasaba_${userKey}_${month}_${year}`;
+            const amalsKey = `amals_list_${userKey}`;
+
+            let amals = JSON.parse(localStorage.getItem(amalsKey)) || getDefaultAmals();
             let data = JSON.parse(localStorage.getItem(storageKey)) || {};
 
             let headerHTML = `<tr class="bg-emerald-800 text-yellow-300 font-bold border-b dark:border-gray-700">`;
             headerHTML += `<th class="p-2 border-r dark:border-gray-700 text-left">আমল / তারিখ</th>`;
             for (let d = 1; d <= 31; d++) {
-                headerHTML += `<th class="p-1 border-r dark:border-gray-700 text-[10px] w-8">${d}</th>`;
+                headerHTML += `<th class="p-1 border-r dark:border-gray-700 text-[10px] w-7">${d}</th>`;
             }
+            headerHTML += `<th class="p-1 text-[10px]">অ্যাকশন</th>`;
             headerHTML += `</tr>`;
 
             let bodyHTML = "";
-            amalList.forEach(amal => {
+            amals.forEach((amal, index) => {
                 bodyHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40">`;
                 bodyHTML += `<td class="p-2 font-bold text-left border-r dark:border-gray-700 text-emerald-800 dark:text-yellow-400">${amal}</td>`;
                 
@@ -420,30 +466,113 @@
                     const colorClass = val === 'হ্যাঁ' ? 'text-green-500 font-bold bg-green-500/10' : val === 'না' ? 'text-red-500 font-bold bg-red-500/10' : 'text-gray-400';
                     bodyHTML += `<td onclick="toggleMuhasaba('${amal}', ${d})" class="p-1 border-r dark:border-gray-700 cursor-pointer text-center text-[11px] ${colorClass}">${val || '-'}</td>`;
                 }
+                bodyHTML += `<td class="p-1 text-center"><button onclick="deleteAmal('${amal}')" class="text-red-500 hover:text-red-700 text-xs px-1" title="আমল মুছুন"><i class="fa-solid fa-trash"></i></button></td>`;
                 bodyHTML += `</tr>`;
             });
 
             table.innerHTML = headerHTML + bodyHTML;
+            loadSavedMuhasabaList();
         }
 
         function toggleMuhasaba(amal, day) {
-            const monthSelect = document.getElementById('muhasaba-month').value;
+            const month = document.getElementById('muhasaba-month').value;
+            const year = document.getElementById('muhasaba-year').value;
             const userKey = currentUser ? currentUser.email : 'guest';
-            const storageKey = `muhasaba_${userKey}_${monthSelect}`;
+            const storageKey = `muhasaba_${userKey}_${month}_${year}`;
             
             let data = JSON.parse(localStorage.getItem(storageKey)) || {};
             const currentVal = data[`${amal}_${day}`];
 
-            if (!currentVal) {
-                data[`${amal}_${day}`] = 'হ্যাঁ';
-            } else if (currentVal === 'হ্যাঁ') {
-                data[`${amal}_${day}`] = 'না';
-            } else {
-                delete data[`${amal}_${day}`];
-            }
+            if (!currentVal) data[`${amal}_${day}`] = 'হ্যাঁ';
+            else if (currentVal === 'হ্যাঁ') data[`${amal}_${day}`] = 'না';
+            else delete data[`${amal}_${day}`];
 
             localStorage.setItem(storageKey, JSON.stringify(data));
             renderMuhasabaTable();
+        }
+
+        function addNewAmal() {
+            const input = document.getElementById('new-amal-name');
+            const newAmal = input.value.trim();
+            if (!newAmal) return alert("আমলের নাম লিখুন!");
+
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const amalsKey = `amals_list_${userKey}`;
+            let amals = JSON.parse(localStorage.getItem(amalsKey)) || getDefaultAmals();
+
+            if (amals.includes(newAmal)) return alert("এই আমলটি ইতিমধ্যে তালিকায় আছে!");
+
+            amals.push(newAmal);
+            localStorage.setItem(amalsKey, JSON.stringify(amals));
+            input.value = '';
+            renderMuhasabaTable();
+            alert("নতুন আমল সফলভাবে যুক্ত হয়েছে!");
+        }
+
+        function deleteAmal(amalName) {
+            if (!confirm(`"${amalName}" আমলটি তালিকা থেকে মুছে ফেলতে চান?`)) return;
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const amalsKey = `amals_list_${userKey}`;
+            let amals = JSON.parse(localStorage.getItem(amalsKey)) || getDefaultAmals();
+            
+            amals = amals.filter(a => a !== amalName);
+            localStorage.setItem(amalsKey, JSON.stringify(amals));
+            renderMuhasabaTable();
+        }
+
+        function updateMuhasabaName(newName) {
+            if (!currentUser) return;
+            currentUser.custom_muhasaba_name = newName.trim();
+            localStorage.setItem('family_user', JSON.stringify(currentUser));
+        }
+
+        function saveCurrentMuhasaba() {
+            const month = document.getElementById('muhasaba-month').value;
+            const year = document.getElementById('muhasaba-year').value;
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const storageKey = `muhasaba_${userKey}_${month}_${year}`;
+            const archiveKey = `muhasaba_archives_${userKey}`;
+
+            let data = JSON.parse(localStorage.getItem(storageKey));
+            if (!data || Object.keys(data).length === 0) return alert("সংরক্ষণ করার মতো কোনো আমলের তথ্য পাওয়া যায়নি!");
+
+            let archives = JSON.parse(localStorage.getItem(archiveKey)) || {};
+            const archiveLabel = `${month} ${year}`;
+            archives[archiveLabel] = data;
+            localStorage.setItem(archiveKey, JSON.stringify(archives));
+
+            alert(`সফলভাবে "${archiveLabel}" এর মুহাসাবা জমা ও সংরক্ষণ করা হয়েছে!`);
+            loadSavedMuhasabaList();
+        }
+
+        function loadSavedMuhasabaList() {
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const archiveKey = `muhasaba_archives_${userKey}`;
+            let archives = JSON.parse(localStorage.getItem(archiveKey)) || {};
+            const selectBox = document.getElementById('saved-muhasaba-list');
+
+            selectBox.innerHTML = `<option value="">-- জমা করা মাসসমূহ --</option>`;
+            Object.keys(archives).forEach(label => {
+                selectBox.innerHTML += `<option value="${label}">${label}</option>`;
+            });
+        }
+
+        function loadSavedMuhasaba(label) {
+            if (!label) return;
+            const userKey = currentUser ? currentUser.email : 'guest';
+            const archiveKey = `muhasaba_archives_${userKey}`;
+            let archives = JSON.parse(localStorage.getItem(archiveKey)) || {};
+
+            if (archives[label]) {
+                const parts = label.split(' ');
+                document.getElementById('muhasaba-month').value = parts[0];
+                document.getElementById('muhasaba-year').value = parts[1];
+
+                const storageKey = `muhasaba_${userKey}_${parts[0]}_${parts[1]}`;
+                localStorage.setItem(storageKey, JSON.stringify(archives[label]));
+                renderMuhasabaTable();
+                alert(`"${label}" এর সংরক্ষিত মুহাসাবা ওপেন করা হয়েছে।`);
+            }
         }
 
         // 📞 Ringtone Functions
@@ -720,7 +849,7 @@
 
             document.getElementById('user-display-name').innerText = currentUser.name;
             document.getElementById('author-name').value = currentUser.name;
-            document.getElementById('muhasaba-username').innerText = `নাম: ${currentUser.name}`;
+            document.getElementById('muhasaba-name-input').value = currentUser.custom_muhasaba_name || currentUser.name;
 
             if (currentUser.avatar_url) {
                 document.getElementById('header-avatar').src = currentUser.avatar_url;
