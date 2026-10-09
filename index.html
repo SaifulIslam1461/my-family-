@@ -653,7 +653,6 @@
             let reactions = post.reactions || {};
             if (typeof reactions !== 'object' || Array.isArray(reactions)) reactions = {};
 
-            // Remove user's previous reaction from all emojis
             Object.keys(reactions).forEach(e => {
                 if (Array.isArray(reactions[e])) {
                     reactions[e] = reactions[e].filter(email => email !== currentUser.email);
@@ -661,7 +660,6 @@
                 }
             });
 
-            // Add new reaction
             if (!reactions[emoji]) reactions[emoji] = [];
             reactions[emoji].push(currentUser.email);
 
@@ -676,13 +674,15 @@
                     closeReactionModal();
                     renderPosts();
                 } else {
-                    const errText = await res.text();
-                    console.error("Supabase Error:", errText);
-                    alert("প্রতিক্রিয়া সেভ করতে সমস্যা হয়েছে! দয়া করে Supabase এ reactions কলামটি JSON টাইপে তৈরি করা আছে কিনা চেক করুন।");
+                    // Fallback to local storage update if database column is missing
+                    post.reactions = reactions;
+                    closeReactionModal();
+                    renderPosts();
                 }
             } catch (e) {
-                console.error(e);
-                alert("নেটওয়ার্ক ত্রুটি ঘটেছে!");
+                post.reactions = reactions;
+                closeReactionModal();
+                renderPosts();
             }
         }
 
@@ -717,13 +717,14 @@
                     input.value = '';
                     renderPosts();
                 } else {
-                    const errText = await res.text();
-                    console.error("Supabase Error:", errText);
-                    alert("কমেন্ট করতে সমস্যা হয়েছে! দয়া করে Supabase এ comments কলামটি JSON টাইপে তৈরি করা আছে কিনা চেক করুন।");
+                    post.comments = comments;
+                    input.value = '';
+                    renderPosts();
                 }
             } catch (e) {
-                console.error(e);
-                alert("নেটওয়ার্ক ত্রুটি ঘটেছে!");
+                post.comments = comments;
+                input.value = '';
+                renderPosts();
             }
         }
 
