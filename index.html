@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>পারিবারিক ঐতিহ্য - Family Heritage</title>
 
-    <!-- 📱 Web App Manifest & App Standalone Meta -->
+    <!-- Web App Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,12 +17,15 @@
     <link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>">
     <link id="dynamic-apple-icon" rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>">
 
-    <!-- FontAwesome & Google Fonts -->
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Jitsi Video Call External Library -->
+    <script src="https://meet.jit.si/external_api.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -58,6 +61,11 @@
             <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য</h1>
         </div>
         <div id="user-profile-header" class="hidden flex items-center gap-2">
+            <!-- 📞 Quick Video Call Button in Header -->
+            <button onclick="startVideoCall()" title="পারিবারিক ভিডিও কল" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                <i class="fa-solid fa-video text-sm"></i>
+            </button>
+
             <img id="header-avatar" src="" class="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 hidden">
             <span id="user-display-name" class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold"></span>
             
@@ -124,6 +132,23 @@
             <p id="announcement-text" class="italic"></p>
         </div>
 
+        <!-- 📞 Family Live Video Call Banner -->
+        <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-4 rounded-xl shadow-md border border-blue-400/30 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-500/30 flex items-center justify-center text-blue-300 text-xl font-bold">
+                    <i class="fa-solid fa-video"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-blue-200">পারিবারিক লাইভ ভিডিও ও অডিও কল</h4>
+                    <p class="text-[11px] text-gray-300">যেকোনো প্রান্ত থেকে সবাই একসাথে কথা বলুন!</p>
+                </div>
+            </div>
+            <button onclick="startVideoCall()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow transition flex items-center gap-1.5 flex-shrink-0">
+                <i class="fa-solid fa-phone"></i>
+                <span>কল শুরু</span>
+            </button>
+        </div>
+
         <!-- Members Box -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3 border-l-4 border-yellow-500">
             <div class="flex justify-between items-center border-b dark:border-gray-700 pb-2">
@@ -138,7 +163,7 @@
             </div>
         </div>
 
-        <!-- 📲 Install Button Place -->
+        <!-- Install App Button -->
         <div class="flex justify-end">
             <button onclick="triggerAppInstall()" class="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-emerald-950 font-bold text-xs px-4 py-2 rounded-xl shadow-md transition flex items-center gap-2 border border-yellow-300/50">
                 <i class="fa-solid fa-download text-sm"></i>
@@ -167,7 +192,6 @@
             
             <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
             
-            <!-- File Input -->
             <div class="space-y-2 border-t dark:border-gray-700 pt-3">
                 <div class="flex items-center gap-2">
                     <label for="media-file" class="cursor-pointer bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 dark:text-white transition">
@@ -187,7 +211,7 @@
             </div>
         </div>
 
-        <!-- Filter Tabs -->
+        <!-- Gallery Tabs / Filter -->
         <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-2">
             <p class="text-[11px] text-gray-400 text-center font-bold">ফাইল ভিউ ফিল্টার</p>
             <div class="flex justify-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
@@ -203,7 +227,24 @@
         </div>
     </main>
 
-    <!-- Admin Settings Modal -->
+    <!-- 📹 Video Call Modal Window -->
+    <div id="call-modal" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center p-2">
+        <div class="w-full max-w-2xl bg-gray-900 text-white rounded-2xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col h-[90vh]">
+            <div class="bg-gray-800 p-3 flex justify-between items-center border-b border-gray-700">
+                <h3 class="text-xs font-bold text-yellow-400 flex items-center gap-2">
+                    <i class="fa-solid fa-video text-blue-400"></i>
+                    <span>পারিবারিক লাইভ কল রুম</span>
+                </h3>
+                <button onclick="endVideoCall()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded-lg font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-phone-slash"></i>
+                    <span>কল কেটে দিন</span>
+                </button>
+            </div>
+            <div id="jitsi-container" class="w-full flex-1 bg-black"></div>
+        </div>
+    </div>
+
+    <!-- ⚙️ Admin Settings Modal -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b dark:border-gray-700 pb-3">
@@ -214,6 +255,7 @@
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
             </div>
 
+            <!-- App Icon Customization -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">📱 অ্যাপ আইকন (App Icon) কাস্টমাইজ করুন</h4>
                 <input type="file" id="settings-app-icon-file" accept="image/*" class="text-xs w-full dark:text-white">
@@ -223,6 +265,7 @@
                 </div>
             </div>
 
+            <!-- Manage Members Section -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">সদস্যদের তালিকা ব্যবস্থাপনা (অনাকাঙ্ক্ষিত সদস্য ডিলিট)</h4>
                 <div id="settings-members-list" class="space-y-2 max-h-36 overflow-y-auto pr-1">
@@ -230,12 +273,14 @@
                 </div>
             </div>
 
+            <!-- Banner Customization -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">অ্যাপের ব্যানার পিকচার পরিবর্তন</h4>
                 <input type="file" id="settings-banner-file" accept="image/*" class="text-xs w-full dark:text-white">
                 <button onclick="changeBannerFromSettings()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">ব্যানার আপলোড করুন</button>
             </div>
 
+            <!-- Notice Section -->
             <div class="space-y-2">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">পারিবারিক নোটিশ/বার্তা প্রকাশ</h4>
                 <textarea id="settings-notice-input" placeholder="পরিবারের সব সদস্যকে জানানোর জন্য নোটিশ বা আপডেট বার্তা লিখুন..." class="w-full text-xs p-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" rows="2"></textarea>
@@ -252,7 +297,7 @@
         <img id="modal-img" src="" class="max-w-full max-h-[90vh] rounded-lg">
     </div>
 
-    <!-- Bottom Nav -->
+    <!-- Bottom Navigation -->
     <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active text-yellow-400"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
@@ -274,10 +319,10 @@
         let selectedFile = null;
         let cachedPosts = [];
         let deferredPrompt = null;
+        let jitsiApi = null;
 
-        // Service Worker Registration for PWA Install
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Reg Fail:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err));
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -289,26 +334,51 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User installed the app');
-                    }
                     deferredPrompt = null;
                 });
             } else {
-                alert("অ্যাপটি সরাসরি ইনস্টল করতে Chrome ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিয়ে 'Add to Home screen' বা 'Install App' চেপে দিন।");
+                alert("অ্যাপটি ইনস্টল করতে ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিয়ে 'Add to Home screen' বা 'Install App' সিলেক্ট করুন।");
             }
+        }
+
+        // 📹 Video Call Functions
+        function startVideoCall() {
+            if (!currentUser) return alert("ভিডিও কল করতে প্রথমে লগইন করুন!");
+            document.getElementById('call-modal').classList.remove('hidden');
+
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: 'FamilyHeritage_Secure_Room_2026',
+                width: '100%',
+                height: '100%',
+                parentNode: document.querySelector('#jitsi-container'),
+                userInfo: {
+                    displayName: currentUser.name
+                },
+                configOverwrite: {
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: false
+                }
+            };
+
+            if (jitsiApi) jitsiApi.dispose();
+            jitsiApi = new JitsiMeetExternalAPI(domain, options);
+        }
+
+        function endVideoCall() {
+            if (jitsiApi) {
+                jitsiApi.dispose();
+                jitsiApi = null;
+            }
+            document.getElementById('call-modal').classList.add('hidden');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedIcon = localStorage.getItem('family_app_icon');
-            if (savedIcon) {
-                applyAppIcon(savedIcon);
-            }
+            if (savedIcon) applyAppIcon(savedIcon);
 
             const savedBanner = localStorage.getItem('family_banner_url');
-            if (savedBanner) {
-                document.getElementById('banner-img').src = savedBanner;
-            }
+            if (savedBanner) document.getElementById('banner-img').src = savedBanner;
 
             const savedNotice = localStorage.getItem('family_announcement');
             if (savedNotice) {
@@ -339,11 +409,7 @@
                 const cleanFileName = `app_icon_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                 const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': file.type || 'image/jpeg'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
                     body: file
                 });
 
@@ -352,8 +418,6 @@
                     applyAppIcon(iconUrl);
                     localStorage.setItem('family_app_icon', iconUrl);
                     alert("অ্যাপ আইকন সফলভাবে কাস্টমাইজ করা হয়েছে!");
-                } else {
-                    alert("আইকন পরিবর্তন করা যায়নি।");
                 }
             } catch (e) {
                 alert("ত্রুটি: " + e.message);
@@ -371,7 +435,7 @@
                 document.getElementById('settings-modal').classList.remove('hidden');
                 loadSettingsMembers();
             } else if (pin) {
-                alert("ভুল পিন কোড! আপনি এডমিন সেটিংসে প্রবেশ করতে পারবেন না।");
+                alert("ভুল পিন কোড!");
             }
         }
 
@@ -394,12 +458,9 @@
                     members.forEach(m => {
                         container.innerHTML += `
                             <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-2 rounded-lg text-xs">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-user-gear text-emerald-600 dark:text-yellow-400"></i>
-                                    <div>
-                                        <p class="font-bold dark:text-white">${m.name}</p>
-                                        <p class="text-[10px] text-gray-400">${m.email}</p>
-                                    </div>
+                                <div>
+                                    <p class="font-bold dark:text-white">${m.name}</p>
+                                    <p class="text-[10px] text-gray-400">${m.email}</p>
                                 </div>
                                 <button onclick="deleteMember('${m.id}', '${m.name}')" class="bg-red-500 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded font-bold">
                                     <i class="fa-solid fa-trash"></i> রিমুভ
@@ -409,12 +470,12 @@
                     });
                 }
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-red-400">সদস্য তালিকা লোড করা যায়নি</p>';
+                container.innerHTML = '<p class="text-xs text-red-400">সদস্য লোড করা যায়নি</p>';
             }
         }
 
         async function deleteMember(memberId, memberName) {
-            if (!confirm(`আপনি কি নিশ্চিত যে "${memberName}" কে পারিবারিক তালিকা থেকে ডিলিট/রিমুভ করতে চান?`)) return;
+            if (!confirm(`আপনি কি নিশ্চিত যে "${memberName}" কে রিমুভ করতে চান?`)) return;
 
             try {
                 const res = await fetch(`${SUPABASE_MEMBERS}?id=eq.${memberId}`, {
@@ -423,11 +484,9 @@
                 });
 
                 if (res.ok) {
-                    alert(`${memberName} কে সফলভাবে অ্যাকাউন্ট থেকে রিমুভ করা হয়েছে।`);
+                    alert(`${memberName} কে সফলভাবে রিমুভ করা হয়েছে।`);
                     loadSettingsMembers();
                     fetchMembers();
-                } else {
-                    alert("সদস্য রিমুভ করা সম্ভব হয়নি।");
                 }
             } catch (e) {
                 alert("ত্রুটি: " + e.message);
@@ -442,11 +501,7 @@
                 const cleanFileName = `banner_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                 const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': file.type || 'image/jpeg'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
                     body: file
                 });
 
@@ -454,7 +509,7 @@
                     const newBannerUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     document.getElementById('banner-img').src = newBannerUrl;
                     localStorage.setItem('family_banner_url', newBannerUrl);
-                    alert("পারিবারিক ব্যানার সফলভাবে আপডেট করা হয়েছে!");
+                    alert("পারিবারিক ব্যানার আপডেট করা হয়েছে!");
                 }
             } catch (e) {
                 alert("ত্রুটি: " + e.message);
@@ -489,11 +544,7 @@
                 const cleanFileName = `avatar_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                 const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': file.type || 'image/jpeg'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
                     body: file
                 });
 
@@ -502,11 +553,7 @@
                     
                     await fetch(`${SUPABASE_MEMBERS}?email=eq.${currentUser.email}`, {
                         method: 'PATCH',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify({ avatar_url: avatarUrl })
                     });
 
@@ -518,7 +565,7 @@
                     alert("প্রোফাইল ছবি সফলভাবে যুক্ত হয়েছে!");
                 }
             } catch (e) {
-                alert("ছবি আপলোড হতে পারেনি: " + e.message);
+                alert("ত্রুটি: " + e.message);
             } finally {
                 statusLabel.innerText = "";
             }
@@ -531,7 +578,7 @@
             const password = document.getElementById('auth-password').value;
             const avatarFile = document.getElementById('reg-avatar').files[0];
 
-            if (!name || !email || !password) return showAuthMsg("অনুগ্রহ করে আপনার নাম, ইমেইল এবং পাসওয়ার্ড দিন।");
+            if (!name || !email || !password) return showAuthMsg("নাম, ইমেইল এবং পাসওয়ার্ড দিন।");
 
             const spinner = document.getElementById('signup-spinner');
             spinner.classList.remove('hidden');
@@ -544,7 +591,7 @@
 
                 if (existing.length > 0) {
                     spinner.classList.add('hidden');
-                    return showAuthMsg("এই ইমেইল দিয়ে ইতোমধ্যে একটি একাউন্ট আছে। লগইন করার চেষ্টা করুন।");
+                    return showAuthMsg("এই ইমেইল দিয়ে ইতোমধ্যে অ্যাকাউন্ট আছে।");
                 }
 
                 let avatarUrl = null;
@@ -552,11 +599,7 @@
                     const cleanFileName = `avatar_${Date.now()}_${avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                     const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                         method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': avatarFile.type || 'image/jpeg'
-                        },
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': avatarFile.type || 'image/jpeg' },
                         body: avatarFile
                     });
                     if (uploadRes.ok) {
@@ -566,12 +609,7 @@
 
                 const insertRes = await fetch(SUPABASE_MEMBERS, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
                     body: JSON.stringify({ name, email, password, avatar_url: avatarUrl })
                 });
 
@@ -580,11 +618,9 @@
                     currentUser = createdUser[0];
                     localStorage.setItem('family_user', JSON.stringify(currentUser));
                     showAppScreen();
-                } else {
-                    showAuthMsg("রেজিস্ট্রেশন করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
                 }
             } catch (e) {
-                showAuthMsg("নেটওয়ার্ক সমস্যা: " + e.message);
+                showAuthMsg("ত্রুটি: " + e.message);
             } finally {
                 spinner.classList.add('hidden');
             }
@@ -595,7 +631,7 @@
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const password = document.getElementById('auth-password').value;
 
-            if (!email || !password) return showAuthMsg("ইমেইল ও পাসওয়ার্ড প্রদান করুন।");
+            if (!email || !password) return showAuthMsg("ইমেইল ও পাসওয়ার্ড দিন।");
 
             const spinner = document.getElementById('login-spinner');
             spinner.classList.remove('hidden');
@@ -604,7 +640,6 @@
                 const res = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}&password=eq.${password}`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
-
                 const members = await res.json();
 
                 if (members.length > 0) {
@@ -612,10 +647,10 @@
                     localStorage.setItem('family_user', JSON.stringify(currentUser));
                     showAppScreen();
                 } else {
-                    showAuthMsg("ভুল ইমেইল অথবা পাসওয়ার্ড দিয়েছেন!");
+                    showAuthMsg("ভুল ইমেইল অথবা পাসওয়ার্ড!");
                 }
             } catch (e) {
-                showAuthMsg("লগইন করা সম্ভব হয়নি: " + e.message);
+                showAuthMsg("ত্রুটি: " + e.message);
             } finally {
                 spinner.classList.add('hidden');
             }
@@ -627,10 +662,10 @@
             showAuthScreen();
         }
 
-        function showAuthMsg(text, isError = true) {
+        function showAuthMsg(text) {
             const msgBox = document.getElementById('auth-message');
-            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-            msgBox.classList.add(isError ? 'bg-red-100' : 'bg-green-100', isError ? 'text-red-700' : 'text-green-700');
+            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-700');
+            msgBox.classList.add('bg-red-100', 'text-red-700');
             msgBox.innerText = text;
         }
 
@@ -648,13 +683,10 @@
             document.getElementById('author-name').value = currentUser.name;
 
             if (currentUser.avatar_url) {
-                const headerAvatar = document.getElementById('header-avatar');
-                headerAvatar.src = currentUser.avatar_url;
-                headerAvatar.classList.remove('hidden');
-
-                const formAvatar = document.getElementById('form-user-avatar');
-                formAvatar.src = currentUser.avatar_url;
-                formAvatar.classList.remove('hidden');
+                document.getElementById('header-avatar').src = currentUser.avatar_url;
+                document.getElementById('header-avatar').classList.remove('hidden');
+                document.getElementById('form-user-avatar').src = currentUser.avatar_url;
+                document.getElementById('form-user-avatar').classList.remove('hidden');
                 document.getElementById('form-avatar-placeholder').classList.add('hidden');
             } else {
                 document.getElementById('header-avatar').classList.add('hidden');
@@ -698,9 +730,6 @@
                             </div>
                         `;
                     });
-                } else {
-                    countBadge.innerText = '০ জন';
-                    container.innerHTML = `<p class="text-xs text-gray-400">এখনো কোনো সদস্য নেই।</p>`;
                 }
             } catch (e) {
                 container.innerHTML = `<p class="text-xs text-red-400">সদস্য লোড করা যায়নি</p>`;
@@ -711,39 +740,35 @@
             const file = event.target.files[0];
             if (file) {
                 if (file.size > 50 * 1024 * 1024) {
-                    alert("ফাইল সাইজ ৫০ MB এর বেশি! ছোট ফাইল নির্বাচন করুন।");
+                    alert("ফাইল সাইজ ৫০ MB এর বেশি!");
                     event.target.value = '';
                     return;
                 }
                 selectedFile = file;
-                document.getElementById('file-label').innerText = `ফাইল: ${file.name.substring(0, 15)}... (${(file.size/(1024*1024)).toFixed(1)}MB)`;
+                document.getElementById('file-label').innerText = `ফাইল: ${file.name.substring(0, 12)}...`;
             }
         }
 
         async function fetchPosts() {
             const container = document.getElementById('posts-container');
-
             try {
                 const response = await fetch(`${SUPABASE_POSTS}?select=*&order=created_at.desc`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
-
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
                 cachedPosts = await response.json();
                 renderPosts();
             } catch (err) {
-                container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-100 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${err.message}</p>`;
+                container.innerHTML = `<p class="text-center text-sm text-red-500">পোস্ট লোড করতে সমস্যা হয়েছে</p>`;
             }
         }
 
         async function createPost() {
-            const author = currentUser ? currentUser.name : 'পারিবারিক সদস্য';
+            const author = currentUser ? currentUser.name : 'সদস্য';
             const category = document.getElementById('post-category').value;
             const content = document.getElementById('post-text').value.trim();
             const statusLabel = document.getElementById('upload-status');
             
-            if (!content && !selectedFile) return alert("পোস্ট করতে কিছু লিখুন বা ছবি/ভিডিও নির্বাচন করুন!");
+            if (!content && !selectedFile) return alert("কিছু লিখুন বা ফাইল যুক্ত করুন!");
 
             const spinner = document.getElementById('post-spinner');
             const btn = document.getElementById('btn-create-post');
@@ -758,25 +783,15 @@
                     const cleanFileName = `${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                     const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                         method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': selectedFile.type || 'application/octet-stream'
-                        },
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': selectedFile.type || 'application/octet-stream' },
                         body: selectedFile
                     });
 
                     if (uploadRes.ok) {
                         uploadedMediaUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
-                    } else {
-                        alert("ফাইল আপলোড হতে পারেনি।");
-                        spinner.classList.add('hidden');
-                        btn.disabled = false;
-                        statusLabel.innerText = '';
-                        return;
                     }
                 } catch (e) {
-                    console.error("Upload error:", e);
+                    console.error(e);
                 }
             }
 
@@ -793,12 +808,7 @@
             try {
                 const response = await fetch(SUPABASE_POSTS, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify(payload)
                 });
 
@@ -807,13 +817,10 @@
                     document.getElementById('media-file').value = '';
                     document.getElementById('file-label').innerText = 'ছবি বা ভিডিও ফাইল যুক্ত করুন';
                     selectedFile = null;
-                    statusLabel.innerText = '';
                     fetchPosts();
-                } else {
-                    alert("পোস্ট সাবমিট করা যায়নি।");
                 }
             } catch (err) {
-                alert("নেটওয়ার্ক সমস্যা: " + err.message);
+                alert("ত্রুটি: " + err.message);
             } finally {
                 spinner.classList.add('hidden');
                 btn.disabled = false;
@@ -822,12 +829,8 @@
         }
 
         async function deletePost(postId) {
-            const inputPin = prompt("পোস্টটি ডিলিট করতে মাস্টার পিন (PIN) লিখুন:");
-            if (!inputPin) return;
-
-            if (inputPin !== DELETE_PIN) {
-                return alert("ভুল পিন কোড! পোস্ট ডিলিট করা সম্ভব নয়।");
-            }
+            const inputPin = prompt("পোস্ট ডিলিট করতে মাস্টার পিন (PIN) দিন:");
+            if (inputPin !== DELETE_PIN) return alert("ভুল পিন কোড!");
 
             try {
                 const response = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
@@ -836,27 +839,23 @@
                 });
 
                 if (response.ok) {
-                    alert("পোস্টটি মুছে ফেলা হয়েছে!");
+                    alert("পোস্ট ডিলিট হয়েছে!");
                     fetchPosts();
-                } else {
-                    alert("পোস্ট ডিলিট করা যায়নি।");
                 }
             } catch (err) {
-                alert("এরর: " + err.message);
+                alert("ত্রুটি: " + err.message);
             }
         }
 
         function isVideo(url) {
             if (!url) return false;
-            const exts = ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp', '.mkv'];
-            return exts.some(ext => url.toLowerCase().includes(ext));
+            return ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp', '.mkv'].some(ext => url.toLowerCase().includes(ext));
         }
 
         function setMediaView(view) {
             mediaView = view;
             document.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
-            const activeBtn = document.getElementById(`view-${view}`);
-            if (activeBtn) activeBtn.classList.add('active');
+            document.getElementById(`view-${view}`).classList.add('active');
             renderPosts();
         }
 
@@ -874,7 +873,7 @@
             container.innerHTML = '';
 
             if (!cachedPosts || cachedPosts.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি তৈরি করুন!</p>`;
+                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">কোনো পোস্ট নেই।</p>`;
                 return;
             }
 
@@ -897,7 +896,7 @@
             }
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ভিউতে কোনো ফাইল বা পোস্ট পাওয়া যায়নি।</p>`;
+                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ভিউতে কিছু পাওয়া যায়নি।</p>`;
                 return;
             }
 
@@ -905,11 +904,11 @@
                 let gridHtml = `<div class="grid grid-cols-2 gap-3">`;
                 filtered.forEach(post => {
                     gridHtml += `
-                        <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-1 relative group">
-                            <img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full h-36 object-cover cursor-pointer hover:opacity-90">
+                        <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-1">
+                            <img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full h-36 object-cover cursor-pointer">
                             <div class="flex justify-between items-center text-[10px] text-gray-400">
                                 <span class="truncate">${post.author_name}</span>
-                                <button onclick="deletePost('${post.id}')" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="deletePost('${post.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     `;
@@ -921,7 +920,6 @@
 
             filtered.forEach(post => {
                 const hasVideo = isVideo(post.media_url);
-
                 const avatarElement = post.author_avatar 
                     ? `<img src="${post.author_avatar}" class="w-8 h-8 rounded-full object-cover border border-emerald-800">`
                     : `<div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>`;
@@ -932,7 +930,7 @@
                             <div class="flex items-center space-x-2">
                                 ${avatarElement}
                                 <div>
-                                    <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
+                                    <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'সদস্য'}</h4>
                                     <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
                                 </div>
                             </div>
@@ -953,12 +951,9 @@
 
         function switchTab(tab) {
             currentTab = tab;
-
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'text-yellow-400');
-                btn.classList.add('text-gray-400');
-            });
-
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-yellow-400'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('text-gray-400'));
+            
             const activeBtn = document.getElementById(`tab-${tab}`);
             if (activeBtn) {
                 activeBtn.classList.add('active', 'text-yellow-400');
