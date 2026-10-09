@@ -23,7 +23,6 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Jitsi Video Call External Library -->
     <script src="https://meet.jit.si/external_api.js"></script>
 
     <script>
@@ -61,7 +60,6 @@
             <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য</h1>
         </div>
         <div id="user-profile-header" class="hidden flex items-center gap-2">
-            <!-- 📞 Quick Video Call Button in Header -->
             <button onclick="startVideoCall()" title="পারিবারিক ভিডিও কল" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
                 <i class="fa-solid fa-video text-sm"></i>
             </button>
@@ -341,7 +339,7 @@
             }
         }
 
-        // 📹 Video Call Functions
+        // 📹 Updated Direct Video Call Integration (Skipping Landing Page)
         function startVideoCall() {
             if (!currentUser) return alert("ভিডিও কল করতে প্রথমে লগইন করুন!");
             document.getElementById('call-modal').classList.remove('hidden');
@@ -357,7 +355,17 @@
                 },
                 configOverwrite: {
                     startWithAudioMuted: false,
-                    startWithVideoMuted: false
+                    startWithVideoMuted: false,
+                    // Direct Join Configs to avoid external landing page
+                    prejoinPageEnabled: false,
+                    toolbarConfig: {
+                        alwaysVisible: true
+                    }
+                },
+                interfaceConfigOverwrite: {
+                    SHOW_JITSI_WATERMARK: false,
+                    SHOW_WATERMARK_FOR_GUESTS: false,
+                    DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
                 }
             };
 
