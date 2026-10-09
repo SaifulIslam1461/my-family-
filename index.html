@@ -45,26 +45,6 @@
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-20">
 
-    <!-- 📲 App Install Prompt Banner/Notice -->
-    <div id="install-prompt-banner" class="hidden fixed bottom-16 left-4 right-4 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white p-4 rounded-2xl shadow-2xl border border-yellow-500/40 z-50 flex items-center justify-between gap-3 animate-bounce">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 text-xl font-bold flex-shrink-0 border border-yellow-400/30">
-                <i class="fa-solid fa-mobile-screen-button"></i>
-            </div>
-            <div>
-                <h4 class="text-xs font-bold text-yellow-300">ফোনে অ্যাপ হিসেবে সেভ করুন</h4>
-                <p class="text-[11px] text-gray-200">সহজে প্রবেশের জন্য ফোনে ইনস্টল করে রাখুন!</p>
-            </div>
-        </div>
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-            <button id="btn-install-app" onclick="triggerAppInstall()" class="bg-yellow-500 hover:bg-yellow-400 text-emerald-900 text-xs px-3 py-2 rounded-xl font-bold shadow-md transition flex items-center gap-1">
-                <i class="fa-solid fa-download"></i>
-                <span>ইনস্টল</span>
-            </button>
-            <button onclick="dismissInstallNotice()" class="text-gray-400 hover:text-white p-1 text-lg font-bold">&times;</button>
-        </div>
-    </div>
-
     <!-- Header Bar -->
     <header class="bg-emerald-800 text-white p-4 sticky top-0 z-40 shadow-md flex justify-between items-center">
         <div class="flex items-center space-x-2 space-x-reverse">
@@ -150,6 +130,14 @@
             <div id="members-list" class="flex flex-wrap gap-2 pt-1">
                 <p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>
             </div>
+        </div>
+
+        <!-- 📲 Specific Place Dedicated Install App Button -->
+        <div class="flex justify-end">
+            <button onclick="triggerAppInstall()" class="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-emerald-950 font-bold text-xs px-4 py-2 rounded-xl shadow-md transition flex items-center gap-2 border border-yellow-300/50">
+                <i class="fa-solid fa-download text-sm"></i>
+                <span>অ্যাপ ইনস্টল করুন (Install App)</span>
+            </button>
         </div>
 
         <!-- Post Form -->
@@ -285,18 +273,9 @@
         let cachedPosts = [];
         let deferredPrompt = null;
 
-        // 📲 Catch PWA Install Prompt Event
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
-            // Show custom install prompt banner after 2.5s
-            setTimeout(() => {
-                const banner = document.getElementById('install-prompt-banner');
-                if (banner && !sessionStorage.getItem('install_dismissed')) {
-                    banner.classList.remove('hidden');
-                }
-            }, 2500);
         });
 
         function triggerAppInstall() {
@@ -307,16 +286,10 @@
                         console.log('User accepted the install prompt');
                     }
                     deferredPrompt = null;
-                    dismissInstallNotice();
                 });
             } else {
-                alert("অ্যাপটি ইনস্টল করতে আপনার ব্রাউজারের মেনু (৩টি ডট ⋮) চাপুন এবং 'Add to Home screen' বা 'Install App' বেছে নিন।");
+                alert("অ্যাপটি ইনস্টল করতে আপনার ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিন এবং 'Add to Home screen' বা 'Install App' বেছে নিন।");
             }
-        }
-
-        function dismissInstallNotice() {
-            document.getElementById('install-prompt-banner').classList.add('hidden');
-            sessionStorage.setItem('install_dismissed', 'true');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
