@@ -184,7 +184,7 @@
         </div>
     </main>
 
-    <!-- ⚙️ Admin Settings Modal Window -->
+    <!-- Admin Settings Modal Window -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b dark:border-gray-700 pb-3">
@@ -270,7 +270,6 @@
             }
         });
 
-        // ⚙️ Open & Security Check for Admin Settings
         function openSettingsModal() {
             const pin = prompt("এডমিন সেটিংস প্যানেলে প্রবেশ করতে মাস্টার পিন (PIN) লিখুন:");
             if (pin === DELETE_PIN) {
@@ -285,7 +284,6 @@
             document.getElementById('settings-modal').classList.add('hidden');
         }
 
-        // 👥 Member Delete Option inside Settings
         async function loadSettingsMembers() {
             const container = document.getElementById('settings-members-list');
             container.innerHTML = '<p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>';
@@ -776,6 +774,7 @@
             document.getElementById('image-modal').classList.add('hidden');
         }
 
+        // 🎯 Tab Filter Fix: Islamic Posts will NOT show up in Archive
         function renderPosts() {
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
@@ -788,8 +787,14 @@
             let filtered = cachedPosts;
 
             if (currentTab === 'archive') {
-                filtered = cachedPosts.filter(p => p.media_url || (p.author_name && p.author_name.includes('[আর্কাইভ]')));
+                // 🛑 আর্কাইভ ট্যাবে শুধু আর্কাইভ পোস্ট থাকবে, কিন্তু কোনো ইসলামিক পোস্ট আসবে না
+                filtered = cachedPosts.filter(p => {
+                    const isIslamic = p.author_name && p.author_name.includes('[ইসলামিক]');
+                    const isExplicitArchive = p.author_name && p.author_name.includes('[আর্কাইভ]');
+                    return !isIslamic && (isExplicitArchive || p.media_url);
+                });
             } else if (currentTab === 'islamic') {
+                // 🕌 শুধু ইসলামিক ক্যাটাগরির পোস্ট
                 filtered = cachedPosts.filter(p => p.author_name && p.author_name.includes('[ইসলামিক]'));
             }
 
