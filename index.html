@@ -135,8 +135,14 @@
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (file) {
+                // ৫০ মেগাবাইটের বেশি ফাইল হলে সতর্ক বার্তা
+                if (file.size > 50 * 1024 * 1024) {
+                    alert("ফাইল সাইজ ৫০ MB এর বেশি! অনুগ্রহ করে ছোট ভিডিও বা কমপ্রেস করা ফাইল নির্বাচন করুন।");
+                    event.target.value = '';
+                    return;
+                }
                 selectedFile = file;
-                document.getElementById('file-label').innerText = `ফাইল: ${file.name.substring(0, 15)}...`;
+                document.getElementById('file-label').innerText = `ফাইল: ${file.name.substring(0, 15)}... (${(file.size/(1024*1024)).toFixed(1)}MB)`;
             }
         }
 
@@ -195,6 +201,10 @@
                     } else {
                         const err = await uploadRes.json();
                         alert("ফাইল আপলোড হতে পারেনি: " + (err.message || 'Storage Access Denied'));
+                        spinner.classList.add('hidden');
+                        btn.disabled = false;
+                        statusLabel.innerText = '';
+                        return;
                     }
                 } catch (e) {
                     console.error("Upload error:", e);
