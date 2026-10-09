@@ -94,38 +94,47 @@
 
     <!-- Bottom Navigation Bar -->
     <nav id="bottom-nav" class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
-        <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
+        <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active text-yellow-400"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
         <button onclick="switchTab('islamic')" id="tab-islamic" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
     </nav>
 
     <script>
-        // 🔑 Supabase Credentials
         const SUPABASE_URL = 'https://zwpoxufpeluqtdooeekr.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabase = null;
+        let currentTab = 'feed';
 
-        let currentTab = 'feed'; // Default Tab
+        window.onload = () => {
+            try {
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    loadPosts();
+                    setupRealtime();
+                } else {
+                    document.getElementById('posts-container').innerHTML = `<p class="text-center text-sm text-red-500">Supabase ইন্টারফেস লোড হতে পারেনি। ইন্টারনেট কানেকশন চেক করুন।</p>`;
+                }
+            } catch (e) {
+                console.error("Init Error:", e);
+                document.getElementById('posts-container').innerHTML = `<p class="text-center text-sm text-red-500">অ্যাপ লোড করতে সমস্যা হয়েছে।</p>`;
+            }
+        };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadPosts();
-            setupRealtime();
-        });
-
-        // 🔄 Tab Switching Function
         function switchTab(tab) {
             currentTab = tab;
             
-            // Update Tab UI Styles
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-yellow-400'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('text-gray-400'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-yellow-400');
+                btn.classList.add('text-gray-400');
+            });
 
             const activeBtn = document.getElementById(`tab-${tab}`);
-            activeBtn.classList.add('active');
-            activeBtn.classList.remove('text-gray-400');
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'text-yellow-400');
+                activeBtn.classList.remove('text-gray-400');
+            }
 
-            // Header Banner Text Change
             const title = document.getElementById('tab-title');
             const subtitle = document.getElementById('tab-subtitle');
 
@@ -143,7 +152,6 @@
             loadPosts();
         }
 
-        // 📝 Create Post
         async function createPost() {
             const author = document.getElementById('author-name').value.trim() || 'পারিবারিক সদস্য';
             const category = document.getElementById('post-category').value;
@@ -159,85 +167,93 @@
 
             const randomUserId = '00000000-0000-0000-0000-000000000000';
 
-            const { error } = await supabase.from('posts').insert([
-                { 
-                    user_id: randomUserId, 
-                    author_name: `${author} (${category === 'islamic' ? 'ইসলামিক' : category === 'archive' ? 'আর্কাইভ' : 'সাধারণ'})`, 
-                    content: content, 
-                    media_url: media_url || null 
+            try {
+                const { error } = await supabase.from('posts').insert([
+                    { 
+                        user_id: randomUserId, 
+                        author_name: `${author} (${category === 'islamic' ? 'ইসলামিক' : category === 'archive' ? 'আর্কাইভ' : 'সাধারণ'})`, 
+                        content: content, 
+                        media_url: media_url || null 
+                    }
+                ]);
+
+                if (!error) {
+                    document.getElementById('post-text').value = '';
+                    document.getElementById('image-url').value = '';
+                    loadPosts();
+                } else {
+                    alert("পোস্ট করা সম্ভব হয়নি: " + error.message);
                 }
-            ]);
-
-            postSpinner.classList.add('hidden');
-            postBtn.disabled = false;
-
-            if (!error) {
-                document.getElementById('post-text').value = '';
-                document.getElementById('image-url').value = '';
-                loadPosts();
-            } else {
-                alert("পোস্ট সাবমিট করা যায়নি: " + error.message);
+            } catch (err) {
+                alert("ত্রুটি ঘটেছে: " + err.message);
+            } finally {
+                postSpinner.classList.add('hidden');
+                postBtn.disabled = false;
             }
         }
 
-        // 📥 Load & Filter Posts
         async function loadPosts() {
             const container = document.getElementById('posts-container');
             container.innerHTML = `<p class="text-center text-sm text-gray-500">লোডিং হচ্ছে...</p>`;
 
-            const { data: posts, error } = await supabase
-                .from('posts')
-                .select('*')
-                .order('created_at', { ascending: false });
+            if (!supabase) return;
 
-            container.innerHTML = '';
+            try {
+                const { data: posts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-            if (error) {
-                container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-50 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${error.message}</p>`;
-                return;
-            }
+                container.innerHTML = '';
 
-            if (posts && posts.length > 0) {
-                // Filter posts based on tab
-                let filteredPosts = posts;
-                if (currentTab === 'archive') {
-                    filteredPosts = posts.filter(p => p.media_url || p.author_name.includes('আর্কাইভ'));
-                } else if (currentTab === 'islamic') {
-                    filteredPosts = posts.filter(p => p.author_name.includes('ইসলামিক'));
-                }
-
-                if (filteredPosts.length === 0) {
-                    container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ট্যাবে এখনো কোনো পোস্ট নেই।</p>`;
+                if (error) {
+                    container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-50 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${error.message}</p>`;
                     return;
                 }
 
-                filteredPosts.forEach(post => {
-                    container.innerHTML += `
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
-                                    <div>
-                                        <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
-                                        <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
+                if (posts && posts.length > 0) {
+                    let filteredPosts = posts;
+                    if (currentTab === 'archive') {
+                        filteredPosts = posts.filter(p => p.media_url || (p.author_name && p.author_name.includes('আর্কাইভ')));
+                    } else if (currentTab === 'islamic') {
+                        filteredPosts = posts.filter(p => p.author_name && p.author_name.includes('ইসলামিক'));
+                    }
+
+                    if (filteredPosts.length === 0) {
+                        container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ট্যাবে এখনো কোনো পোস্ট নেই।</p>`;
+                        return;
+                    }
+
+                    filteredPosts.forEach(post => {
+                        container.innerHTML += `
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
+                                        <div>
+                                            <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
+                                            <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
+                                        </div>
                                     </div>
                                 </div>
+                                <p class="text-sm dark:text-gray-300">${post.content}</p>
+                                ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ''}
                             </div>
-                            <p class="text-sm dark:text-gray-300">${post.content}</p>
-                            ${post.media_url ? `<img src="${post.media_url}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ''}
-                        </div>
-                    `;
-                });
-            } else {
-                container.innerHTML = `<p class="text-center text-sm text-gray-500">এখনো কোনো পোস্ট করা হয়নি। প্রথম পোস্টটি আপনিই করুন!</p>`;
+                        `;
+                    });
+                } else {
+                    container.innerHTML = `<p class="text-center text-sm text-gray-500">এখনো কোনো পোস্ট করা হয়নি। প্রথম পোস্টটি আপনিই করুন!</p>`;
+                }
+            } catch (e) {
+                container.innerHTML = `<p class="text-center text-sm text-red-500">নেটওয়ার্ক এরর!</p>`;
             }
         }
 
-        // ⚡ Realtime Sync
         function setupRealtime() {
+            if (!supabase) return;
             supabase
                 .channel('public:posts')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, payload => {
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => {
                     loadPosts();
                 })
                 .subscribe();
