@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <!-- 🖼️ Separate Gallery Folder Tabs (ছবি ও ভিডিওর জন্য আলাদা ফাইল/জায়গা) -->
+        <!-- Separate Gallery Folder Tabs -->
         <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-2">
             <p class="text-[11px] text-gray-400 text-center font-bold">ফাইল ভিউ ফিল্টার</p>
             <div class="flex justify-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
@@ -128,7 +128,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
         let currentTab = 'feed';
-        let mediaView = 'all'; // 'all', 'photos', 'videos'
+        let mediaView = 'all';
         let selectedFile = null;
         let cachedPosts = [];
 
@@ -179,19 +179,22 @@
             if (selectedFile) {
                 statusLabel.innerText = "ফাইল আপলোড হচ্ছে...";
                 try {
-                    const fileName = `${Date.now()}_${selectedFile.name.replace(/\s+/g, '_')}`;
-                    const uploadRes = await fetch(`${STORAGE_URL}/${fileName}`, {
+                    const cleanFileName = `${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                    const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                         method: 'POST',
                         headers: {
                             'apikey': SUPABASE_KEY,
                             'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': selectedFile.type
+                            'Content-Type': selectedFile.type || 'application/octet-stream'
                         },
                         body: selectedFile
                     });
 
                     if (uploadRes.ok) {
-                        uploadedMediaUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${fileName}`;
+                        uploadedMediaUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                    } else {
+                        const err = await uploadRes.json();
+                        alert("ফাইল আপলোড হতে পারেনি: " + (err.message || 'Storage Access Denied'));
                     }
                 } catch (e) {
                     console.error("Upload error:", e);
@@ -273,14 +276,12 @@
 
             let filtered = cachedPosts;
 
-            // Main Category Filter
             if (currentTab === 'archive') {
                 filtered = cachedPosts.filter(p => p.media_url || (p.author_name && p.author_name.includes('[আর্কাইভ]')));
             } else if (currentTab === 'islamic') {
                 filtered = cachedPosts.filter(p => p.author_name && p.author_name.includes('[ইসলামিক]'));
             }
 
-            // Media View Filter
             if (mediaView === 'photos') {
                 filtered = filtered.filter(p => p.media_url && !isVideo(p.media_url));
             } else if (mediaView === 'videos') {
@@ -292,7 +293,6 @@
                 return;
             }
 
-            // Grid Layout for Photo Gallery Mode
             if (mediaView === 'photos') {
                 let gridHtml = `<div class="grid grid-cols-2 gap-3">`;
                 filtered.forEach(post => {
@@ -308,7 +308,6 @@
                 return;
             }
 
-            // Feed & Video Gallery Display
             filtered.forEach(post => {
                 const hasVideo = isVideo(post.media_url);
 
@@ -327,7 +326,7 @@
                         ${post.media_url ? (
                             hasVideo 
                             ? `<video src="${post.media_url}" controls playsinline class="rounded-lg w-full max-h-80 bg-black"></video>` 
-                            : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer" onerror="this.style.display='none'">`
+                            : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer">`
                         ) : ''}
                     </div>
                 `;
