@@ -278,6 +278,17 @@
                 <button onclick="changeBannerFromSettings()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">ব্যানার আপলোড করুন</button>
             </div>
 
+            <!-- 🔔 Call Ringtone Customization Section -->
+            <div class="space-y-2 border-b dark:border-gray-700 pb-4">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">📞 কলের রিংটোন কাস্টমাইজ (Ringtone URL)</h4>
+                <p class="text-[10px] text-gray-400">যেকোনো একটি অনলাইন অডিও (.mp3) লিংক এখানে দিন:</p>
+                <input type="text" id="settings-ringtone-input" placeholder="https://example.com/ringtone.mp3" class="w-full text-xs p-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <div class="flex gap-2 pt-1">
+                    <button onclick="saveRingtone()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">রিংটোন সেভ করুন</button>
+                    <button onclick="testRingtone()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">টেস্ট করুন</button>
+                </div>
+            </div>
+
             <!-- Notice Section -->
             <div class="space-y-2">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">পারিবারিক নোটিশ/বার্তা প্রকাশ</h4>
@@ -318,6 +329,7 @@
         let cachedPosts = [];
         let deferredPrompt = null;
         let jitsiApi = null;
+        let callAudio = null;
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err));
@@ -339,9 +351,29 @@
             }
         }
 
-        // 📹 Updated Direct Video Call Integration (Skipping Landing Page)
+        // 📞 Call Ringtone & Video Call Integration
+        function playRingtone() {
+            const defaultRing = 'https://actions.google.com/sounds/v1/alarms/phone_ringing_multiple.ogg';
+            const customRing = localStorage.getItem('family_ringtone_url') || defaultRing;
+            
+            if (!callAudio) {
+                callAudio = new Audio(customRing);
+                callAudio.loop = true;
+            }
+            callAudio.play().catch(e => console.log("Audio autoplay restricted:", e));
+        }
+
+        function stopRingtone() {
+            if (callAudio) {
+                callAudio.pause();
+                callAudio.currentTime = 0;
+            }
+        }
+
         function startVideoCall() {
             if (!currentUser) return alert("ভিডিও কল করতে প্রথমে লগইন করুন!");
+            
+            playRingtone(); // Play Ringtone on Call Start
             document.getElementById('call-modal').classList.remove('hidden');
 
             const domain = 'meet.jit.si';
@@ -356,29 +388,42 @@
                 configOverwrite: {
                     startWithAudioMuted: false,
                     startWithVideoMuted: false,
-                    // Direct Join Configs to avoid external landing page
                     prejoinPageEnabled: false,
-                    toolbarConfig: {
-                        alwaysVisible: true
-                    }
+                    toolbarConfig: { alwaysVisible: true }
                 },
                 interfaceConfigOverwrite: {
                     SHOW_JITSI_WATERMARK: false,
-                    SHOW_WATERMARK_FOR_GUESTS: false,
-                    DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
+                    SHOW_WATERMARK_FOR_GUESTS: false
                 }
             };
 
             if (jitsiApi) jitsiApi.dispose();
             jitsiApi = new JitsiMeetExternalAPI(domain, options);
+            
+            // Stop ringtone once connected/loaded
+            setTimeout(() => { stopRingtone(); }, 3000);
         }
 
         function endVideoCall() {
+            stopRingtone();
             if (jitsiApi) {
                 jitsiApi.dispose();
                 jitsiApi = null;
             }
             document.getElementById('call-modal').classList.add('hidden');
+        }
+
+        function saveRingtone() {
+            const url = document.getElementById('settings-ringtone-input').value.trim();
+            if (!url) return alert("সঠিক অডিও (.mp3) লিংক দিন!");
+            localStorage.setItem('family_ringtone_url', url);
+            alert("রিংটোন সফলভাবে সেভ করা হয়েছে!");
+        }
+
+        function testRingtone() {
+            playRingtone();
+            setTimeout(() => { stopRingtone(); }, 5000);
+            alert("৫ সেকেন্ডের জন্য রিংটোন টেস্ট বাজানো হলো।");
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -392,6 +437,11 @@
             if (savedNotice) {
                 document.getElementById('announcement-text').innerText = savedNotice;
                 document.getElementById('announcement-box').classList.remove('hidden');
+            }
+
+            const savedRing = localStorage.getItem('family_ringtone_url');
+            if (savedRing) {
+                document.getElementById('settings-ringtone-input').value = savedRing;
             }
 
             const savedUser = localStorage.getItem('family_user');
@@ -478,7 +528,7 @@
                     });
                 }
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-red-400">সদস্য লোড করা যায়নি</p>';
+                container.innerHTML = '<p class="text-xs text-red-400">সদস্য তালিকা লোড করা যায়নি</p>';
             }
         }
 
