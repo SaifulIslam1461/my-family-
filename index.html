@@ -91,6 +91,20 @@
             </div>
         </div>
 
+        <!-- 👥 Members List Box (সদস্যদের তালিকা) -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3 border-l-4 border-yellow-500">
+            <div class="flex justify-between items-center border-b dark:border-gray-700 pb-2">
+                <h3 class="text-xs font-bold flex items-center gap-2 text-emerald-800 dark:text-yellow-400">
+                    <i class="fa-solid fa-users text-sm"></i>
+                    <span>পরিবারের নিবন্ধিত সদস্যবৃন্দ</span>
+                </h3>
+                <span id="member-count" class="text-[11px] bg-emerald-800 text-white px-2 py-0.5 rounded-full font-bold">০ জন</span>
+            </div>
+            <div id="members-list" class="flex flex-wrap gap-2 pt-1">
+                <p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>
+            </div>
+        </div>
+
         <!-- Post Creation Form -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
             <div class="flex gap-2">
@@ -104,7 +118,7 @@
             
             <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
             
-            <!-- Direct File Attachment Input -->
+            <!-- File Input -->
             <div class="space-y-2 border-t dark:border-gray-700 pt-3">
                 <div class="flex items-center gap-2">
                     <label for="media-file" class="cursor-pointer bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 dark:text-white transition">
@@ -167,7 +181,6 @@
         let selectedFile = null;
         let cachedPosts = [];
 
-        // Check stored session
         window.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('family_user');
             if (savedUser) {
@@ -178,7 +191,6 @@
             }
         });
 
-        // 📝 Sign Up Function
         async function handleSignUp() {
             clearAuthMsg();
             const name = document.getElementById('reg-name').value.trim();
@@ -191,7 +203,6 @@
             spinner.classList.remove('hidden');
 
             try {
-                // Check if email already exists
                 const checkRes = await fetch(`${SUPABASE_MEMBERS}?email=eq.${email}`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
@@ -202,7 +213,6 @@
                     return showAuthMsg("এই ইমেইল দিয়ে ইতোমধ্যে একটি একাউন্ট আছে। লগইন করার চেষ্টা করুন।");
                 }
 
-                // Register New Member
                 const insertRes = await fetch(SUPABASE_MEMBERS, {
                     method: 'POST',
                     headers: {
@@ -229,7 +239,6 @@
             }
         }
 
-        // 🔑 Login Function
         async function handleLogin() {
             clearAuthMsg();
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
@@ -261,7 +270,6 @@
             }
         }
 
-        // 🚪 Logout Function
         function handleLogout() {
             localStorage.removeItem('family_user');
             currentUser = null;
@@ -288,6 +296,7 @@
             document.getElementById('user-display-name').innerText = currentUser.name;
             document.getElementById('author-name').value = currentUser.name;
 
+            fetchMembers();
             fetchPosts();
         }
 
@@ -296,6 +305,37 @@
             document.getElementById('app-screen').classList.add('hidden');
             document.getElementById('bottom-nav').classList.add('hidden');
             document.getElementById('user-profile-header').classList.add('hidden');
+        }
+
+        // 👥 Fetch & Display Family Members
+        async function fetchMembers() {
+            const container = document.getElementById('members-list');
+            const countBadge = document.getElementById('member-count');
+
+            try {
+                const res = await fetch(`${SUPABASE_MEMBERS}?select=name,email&order=created_at.asc`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const members = await res.json();
+
+                if (members && members.length > 0) {
+                    countBadge.innerText = `${members.length} জন`;
+                    container.innerHTML = '';
+                    members.forEach(m => {
+                        container.innerHTML += `
+                            <div class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border dark:border-gray-600">
+                                <i class="fa-solid fa-circle-user text-emerald-600 dark:text-yellow-400 text-sm"></i>
+                                <span class="font-bold">${m.name}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    countBadge.innerText = '০ জন';
+                    container.innerHTML = `<p class="text-xs text-gray-400">এখনো কোনো সদস্য নেই।</p>`;
+                }
+            } catch (e) {
+                container.innerHTML = `<p class="text-xs text-red-400">সদস্য লোড করা যায়নি</p>`;
+            }
         }
 
         function handleFileSelect(event) {
