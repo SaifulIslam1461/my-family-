@@ -1,0 +1,16 @@
+{
+  "name": "পারিবারিক ঐতিহ্য",
+  "short_name": "পরিবার",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1f17",
+  "theme_color": "#1b4332",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
