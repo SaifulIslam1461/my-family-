@@ -307,6 +307,16 @@
         </div>
     </main>
 
+    <!-- ❤️ Emoji Reactions Popup Modal -->
+    <div id="reaction-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50" onclick="closeReactionModal()">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-2xl max-w-xs w-full text-center space-y-3" onclick="event.stopPropagation()">
+            <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">আপনার প্রতিক্রিয়া সিলেক্ট করুন</h4>
+            <div id="reaction-emojis-container" class="grid grid-cols-5 gap-2 text-xl">
+                <!-- Emojis populated dynamically -->
+            </div>
+        </div>
+    </div>
+
     <!-- 📹 Video Call Modal Window -->
     <div id="call-modal" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center p-2">
         <div class="w-full max-w-2xl bg-gray-900 text-white rounded-2xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col h-[90vh]">
@@ -335,12 +345,21 @@
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
             </div>
 
-            <!-- PIN Code Customization Section -->
+            <!-- Settings Password Customization -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
-                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">🔑 ডিলিট পিন (PIN) কোড পরিবর্তন করুন</h4>
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">⚙️ সেটিংস পাসওয়ার্ড পরিবর্তন করুন</h4>
                 <div class="flex gap-2">
-                    <input type="text" id="new-pin-input" placeholder="নতুন পিন (যেমন: 5678)" class="text-xs p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-1">
-                    <button onclick="updateDeletePin()" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">পিন সেভ করুন</button>
+                    <input type="text" id="new-settings-pass-input" placeholder="সেটিংস পাসওয়ার্ড (যেমন: 1234)" class="text-xs p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-1">
+                    <button onclick="updateSettingsPassword()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">সেটিংস পাস সেভ</button>
+                </div>
+            </div>
+
+            <!-- Delete PIN Code Customization Section -->
+            <div class="space-y-2 border-b dark:border-gray-700 pb-4">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">🗑️ ডিলিট পিন (PIN) কোড পরিবর্তন করুন</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="new-pin-input" placeholder="ডিলিট পিন (যেমন: 5678)" class="text-xs p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-1">
+                    <button onclick="updateDeletePin()" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">ডিলিট পিন সেভ</button>
                 </div>
             </div>
 
@@ -420,6 +439,21 @@
         let deferredPrompt = null;
         let jitsiApi = null;
         let callAudio = null;
+        let activeReactionPostId = null;
+
+        const availableEmojis = ["❤️", "👍", "😭", "🤣", "🥰", "🫣", "😁", "🥲", "😊", "😱", "💝", "💗", "🤲", "🎉", "🆗", "👌"];
+
+        function getSettingsPassword() {
+            return localStorage.getItem('family_settings_pass') || '1234';
+        }
+
+        function updateSettingsPassword() {
+            const newPass = document.getElementById('new-settings-pass-input').value.trim();
+            if (!newPass) return alert("সেটিংস পাসওয়ার্ড লিখুন!");
+            localStorage.setItem('family_settings_pass', newPass);
+            document.getElementById('new-settings-pass-input').value = '';
+            alert("সফলভাবে নতুন সেটিংস পাসওয়ার্ড সেভ করা হয়েছে!");
+        }
 
         function getDeletePin() {
             return localStorage.getItem('family_delete_pin') || '1234';
@@ -427,10 +461,10 @@
 
         function updateDeletePin() {
             const newPin = document.getElementById('new-pin-input').value.trim();
-            if (!newPin) return alert("নতুন পিন কোড লিখুন!");
+            if (!newPin) return alert("ডিলিট পিন কোড লিখুন!");
             localStorage.setItem('family_delete_pin', newPin);
             document.getElementById('new-pin-input').value = '';
-            alert("সফলভাবে নতুন পিন কোড সেভ করা হয়েছে!");
+            alert("সফলভাবে নতুন ডিলিট পিন কোড সেভ করা হয়েছে!");
         }
 
         if ('serviceWorker' in navigator) {
@@ -594,29 +628,49 @@
             }
         }
 
-        // ❤️ Likes & Comments Interaction Logic
-        async function toggleLike(postId) {
+        // ❤️ Reaction Popup & Emojis Logic
+        function openReactionModal(postId) {
             if (!currentUser) return;
-            const post = cachedPosts.find(p => p.id === postId);
+            activeReactionPostId = postId;
+            const container = document.getElementById('reaction-emojis-container');
+            container.innerHTML = '';
+            availableEmojis.forEach(emoji => {
+                container.innerHTML += `<button onclick="setReaction('${emoji}')" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition">${emoji}</button>`;
+            });
+            document.getElementById('reaction-modal').classList.remove('hidden');
+        }
+
+        function closeReactionModal() {
+            document.getElementById('reaction-modal').classList.add('hidden');
+            activeReactionPostId = null;
+        }
+
+        async function setReaction(emoji) {
+            if (!activeReactionPostId || !currentUser) return;
+            const post = cachedPosts.find(p => p.id === activeReactionPostId);
             if (!post) return;
 
-            let likes = post.likes || [];
-            const userEmail = currentUser.email;
+            let reactions = post.reactions || {};
+            // remove previous reaction of this user if any
+            Object.keys(reactions).forEach(e => {
+                if (Array.isArray(reactions[e])) {
+                    reactions[e] = reactions[e].filter(email => email !== currentUser.email);
+                    if (reactions[e].length === 0) delete reactions[e];
+                }
+            });
 
-            if (likes.includes(userEmail)) {
-                likes = likes.filter(e => e !== userEmail);
-            } else {
-                likes.push(userEmail);
-            }
+            if (!reactions[emoji]) reactions[emoji] = [];
+            reactions[emoji].push(currentUser.email);
 
             try {
-                const res = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
+                const res = await fetch(`${SUPABASE_POSTS}?id=eq.${activeReactionPostId}`, {
                     method: 'PATCH',
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ likes: likes })
+                    body: JSON.stringify({ reactions: reactions })
                 });
                 if (res.ok) {
-                    post.likes = likes;
+                    post.reactions = reactions;
+                    closeReactionModal();
                     renderPosts();
                 }
             } catch (e) {
@@ -778,11 +832,11 @@
         function resetAppIcon() { localStorage.removeItem('family_app_icon'); location.reload(); }
 
         function openSettingsModal() {
-            const pin = prompt("মাস্টার পিন দিন:");
-            if (pin === getDeletePin()) {
+            const pass = prompt("সেটিংস পাসওয়ার্ড দিন:");
+            if (pass === getSettingsPassword()) {
                 document.getElementById('settings-modal').classList.remove('hidden');
                 loadSettingsMembers();
-            } else if (pin) { alert("ভুল পিন!"); }
+            } else if (pass) { alert("ভুল পাসওয়ার্ড!"); }
         }
 
         function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
@@ -1004,7 +1058,7 @@
             await fetch(SUPABASE_POSTS, {
                 method: 'POST',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-                body: JSON.stringify({ author_name: `${author}${catLabel}`, author_avatar: currentUser?.avatar_url, content: content || 'মিডিয়া ফাইল', media_url: uploadedMediaUrl, likes: [], comments: [] })
+                body: JSON.stringify({ author_name: `${author}${catLabel}`, author_avatar: currentUser?.avatar_url, content: content || 'মিডিয়া ফাইল', media_url: uploadedMediaUrl, reactions: {}, comments: [] })
             });
 
             document.getElementById('post-text').value = '';
@@ -1059,10 +1113,24 @@
                 const av = post.author_avatar ? `<img src="${post.author_avatar}" class="w-8 h-8 rounded-full object-cover">` : `<div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xs font-bold">${post.author_name?.[0] || 'U'}</div>`;
                 const mediaHTML = post.media_url ? (isVideo(post.media_url) ? `<video src="${post.media_url}" controls playsinline class="rounded-lg w-full max-h-80 bg-black"></video>` : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer">`) : '';
 
-                const likes = post.likes || [];
-                const isLiked = currentUser && likes.includes(currentUser.email);
-                const comments = post.comments || [];
+                const reactions = post.reactions || {};
+                let totalReactions = 0;
+                let userReactedEmoji = '';
+                let reactionSummaryHTML = '';
 
+                Object.keys(reactions).forEach(emoji => {
+                    const list = reactions[emoji] || [];
+                    const count = list.length;
+                    totalReactions += count;
+                    if (currentUser && list.includes(currentUser.email)) {
+                        userReactedEmoji = emoji;
+                    }
+                    if (count > 0) {
+                        reactionSummaryHTML += `<span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-full text-[11px]">${emoji} ${count}</span>`;
+                    }
+                });
+
+                const comments = post.comments || [];
                 let commentsHTML = '';
                 comments.forEach(c => {
                     const cAv = c.avatar ? `<img src="${c.avatar}" class="w-5 h-5 rounded-full object-cover">` : `<div class="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-bold">${c.name[0]}</div>`;
@@ -1077,6 +1145,8 @@
                     `;
                 });
 
+                const reactionBtnText = userReactedEmoji ? `${userReactedEmoji} পছন্দ (${totalReactions})` : `❤️ পছন্দ (${totalReactions})`;
+
                 container.innerHTML += `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
@@ -1089,12 +1159,14 @@
                         <p class="text-sm dark:text-gray-300">${post.content}</p>
                         ${mediaHTML}
 
-                        <!-- Like & Comment Actions Bar -->
+                        <!-- Reaction & Comments Bar -->
                         <div class="flex items-center justify-between border-t border-b dark:border-gray-700 py-2 text-xs">
-                            <button onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 font-bold ${isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}">
-                                <i class="fa-solid fa-heart"></i>
-                                <span>পছন্দ (${likes.length})</span>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openReactionModal('${post.id}')" oncontextmenu="openReactionModal('${post.id}'); event.preventDefault();" class="flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-gray-700 dark:text-gray-200">
+                                    <span>${reactionBtnText}</span>
+                                </button>
+                                <div class="flex items-center gap-1">${reactionSummaryHTML}</div>
+                            </div>
                             <span class="text-gray-400">${comments.length}টি মন্তব্য</span>
                         </div>
 
