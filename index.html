@@ -24,7 +24,7 @@
     <style>
         body { font-family: 'Tiro Bangla', serif; }
         .tab-btn.active { border-bottom: 3px solid #D4AF37; color: #D4AF37; }
-        .media-filter.active { background-color: #1b4332; color: #ffffff; }
+        .media-tab.active { background-color: #D4AF37; color: #0d1f17; font-weight: bold; }
         .spinner {
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
@@ -93,11 +93,14 @@
             </div>
         </div>
 
-        <!-- Media Filter Sub-Navigation (ছবি / ভিডিও দেখার ফিল্টার) -->
-        <div id="media-filter-bar" class="flex gap-2 justify-center bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm">
-            <button onclick="setMediaFilter('all')" id="filter-all" class="media-filter active text-xs px-4 py-1.5 rounded-lg font-bold transition bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">সবকিছু</button>
-            <button onclick="setMediaFilter('image')" id="filter-image" class="media-filter text-xs px-4 py-1.5 rounded-lg font-bold transition bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center gap-1"><i class="fa-solid fa-image"></i> ছবি</button>
-            <button onclick="setMediaFilter('video')" id="filter-video" class="media-filter text-xs px-4 py-1.5 rounded-lg font-bold transition bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center gap-1"><i class="fa-solid fa-video"></i> ভিডিও</button>
+        <!-- 🖼️ Separate Gallery Folder Tabs (ছবি ও ভিডিওর জন্য আলাদা ফাইল/জায়গা) -->
+        <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-2">
+            <p class="text-[11px] text-gray-400 text-center font-bold">ফাইল ভিউ ফিল্টার</p>
+            <div class="flex justify-center gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                <button onclick="setMediaView('all')" id="view-all" class="media-tab active text-xs px-3 py-1.5 rounded-md transition flex-1 text-center">সব পোস্ট</button>
+                <button onclick="setMediaView('photos')" id="view-photos" class="media-tab text-xs px-3 py-1.5 rounded-md transition flex-1 text-center flex items-center justify-center gap-1"><i class="fa-solid fa-images text-blue-400"></i> ছবি গ্যালারি</button>
+                <button onclick="setMediaView('videos')" id="view-videos" class="media-tab text-xs px-3 py-1.5 rounded-md transition flex-1 text-center flex items-center justify-center gap-1"><i class="fa-solid fa-film text-red-400"></i> ভিডিও গ্যালারি</button>
+            </div>
         </div>
 
         <!-- Feed Area -->
@@ -105,6 +108,11 @@
             <p class="text-center text-sm text-gray-500">ডাটা লোড হচ্ছে...</p>
         </div>
     </main>
+
+    <!-- Image Modal for Full Preview -->
+    <div id="image-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onclick="closeModal()">
+        <img id="modal-img" src="" class="max-w-full max-h-[90vh] rounded-lg">
+    </div>
 
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
@@ -120,7 +128,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
         let currentTab = 'feed';
-        let mediaFilter = 'all'; // 'all', 'image', 'video'
+        let mediaView = 'all'; // 'all', 'photos', 'videos'
         let selectedFile = null;
         let cachedPosts = [];
 
@@ -231,26 +239,27 @@
             }
         }
 
-        // Helper to check if URL is a video
-        function isVideoUrl(url) {
+        function isVideo(url) {
             if (!url) return false;
-            const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp', '.mkv'];
-            const lowerUrl = url.toLowerCase();
-            return videoExtensions.some(ext => lowerUrl.includes(ext));
+            const exts = ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.3gp', '.mkv'];
+            return exts.some(ext => url.toLowerCase().includes(ext));
         }
 
-        function setMediaFilter(filter) {
-            mediaFilter = filter;
-            document.querySelectorAll('.media-filter').forEach(btn => {
-                btn.classList.remove('active', 'bg-emerald-800', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-200');
-            });
-            const activeBtn = document.getElementById(`filter-${filter}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active', 'bg-emerald-800', 'text-white');
-                activeBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-200');
-            }
+        function setMediaView(view) {
+            mediaView = view;
+            document.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`view-${view}`);
+            if (activeBtn) activeBtn.classList.add('active');
             renderPosts();
+        }
+
+        function openModal(src) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('image-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('image-modal').classList.add('hidden');
         }
 
         function renderPosts() {
@@ -262,29 +271,46 @@
                 return;
             }
 
-            let filteredPosts = cachedPosts;
+            let filtered = cachedPosts;
 
-            // Tab Filter
+            // Main Category Filter
             if (currentTab === 'archive') {
-                filteredPosts = cachedPosts.filter(p => p.media_url || (p.author_name && p.author_name.includes('[আর্কাইভ]')));
+                filtered = cachedPosts.filter(p => p.media_url || (p.author_name && p.author_name.includes('[আর্কাইভ]')));
             } else if (currentTab === 'islamic') {
-                filteredPosts = cachedPosts.filter(p => p.author_name && p.author_name.includes('[ইসলামিক]'));
+                filtered = cachedPosts.filter(p => p.author_name && p.author_name.includes('[ইসলামিক]'));
             }
 
-            // Sub-Media Filter (সবকিছু, ছবি, ভিডিও)
-            if (mediaFilter === 'image') {
-                filteredPosts = filteredPosts.filter(p => p.media_url && !isVideoUrl(p.media_url));
-            } else if (mediaFilter === 'video') {
-                filteredPosts = filteredPosts.filter(p => p.media_url && isVideoUrl(p.media_url));
+            // Media View Filter
+            if (mediaView === 'photos') {
+                filtered = filtered.filter(p => p.media_url && !isVideo(p.media_url));
+            } else if (mediaView === 'videos') {
+                filtered = filtered.filter(p => p.media_url && isVideo(p.media_url));
             }
 
-            if (filteredPosts.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই বিভাগে কোনো পোস্ট বা ফাইল পাওয়া যায়নি।</p>`;
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-sm text-gray-500 py-6">এই ভিউতে কোনো ফাইল বা পোস্ট পাওয়া যায়নি।</p>`;
                 return;
             }
 
-            filteredPosts.forEach(post => {
-                const hasVideo = isVideoUrl(post.media_url);
+            // Grid Layout for Photo Gallery Mode
+            if (mediaView === 'photos') {
+                let gridHtml = `<div class="grid grid-cols-2 gap-3">`;
+                filtered.forEach(post => {
+                    gridHtml += `
+                        <div class="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm space-y-1">
+                            <img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full h-36 object-cover cursor-pointer hover:opacity-90">
+                            <p class="text-[10px] text-gray-400 truncate">${post.author_name}</p>
+                        </div>
+                    `;
+                });
+                gridHtml += `</div>`;
+                container.innerHTML = gridHtml;
+                return;
+            }
+
+            // Feed & Video Gallery Display
+            filtered.forEach(post => {
+                const hasVideo = isVideo(post.media_url);
 
                 container.innerHTML += `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
@@ -301,7 +327,7 @@
                         ${post.media_url ? (
                             hasVideo 
                             ? `<video src="${post.media_url}" controls playsinline class="rounded-lg w-full max-h-80 bg-black"></video>` 
-                            : `<img src="${post.media_url}" class="rounded-lg w-full max-h-80 object-cover" onerror="this.style.display='none'">`
+                            : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer" onerror="this.style.display='none'">`
                         ) : ''}
                     </div>
                 `;
