@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>পারিবারিক ঐতিহ্য - Family Heritage</title>
 
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- FontAwesome & Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,17 +42,49 @@
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-emerald-900 dark:text-gray-100 min-h-screen pb-20">
 
-    <!-- Header -->
+    <!-- Header Bar -->
     <header class="bg-emerald-800 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
         <div class="flex items-center space-x-2 space-x-reverse">
             <i class="fa-solid fa-people-roof text-2xl text-yellow-400"></i>
-            <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য v1.0</h1>
+            <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য</h1>
         </div>
-        <span class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold">পাবলিক মোড</span>
+        <div id="user-profile-header" class="hidden flex items-center gap-2">
+            <span id="user-display-name" class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold"></span>
+            <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg transition font-bold">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-2xl mx-auto p-4 space-y-6">
+    <!-- Authentication Screen (Login / Registration) -->
+    <section id="auth-screen" class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl mt-10 text-center">
+        <i class="fa-solid fa-kaaba text-5xl text-emerald-800 dark:text-yellow-400 mb-4"></i>
+        <h2 id="auth-title" class="text-xl font-bold mb-2 text-emerald-800 dark:text-yellow-400">পারিবারিক নেটওয়ার্কে প্রবেশ করুন</h2>
+        <p class="text-xs text-gray-500 mb-4">পরিবারের সদস্য হিসেবে আপনার অ্যাকাউন্ট খুলুন অথবা লগইন করুন</p>
+        
+        <div class="space-y-3">
+            <input type="text" id="reg-name" placeholder="আপনার পুরো নাম (যেমন: সাইফুল ইসলাম)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
+            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
+            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
+            
+            <div class="flex gap-2 pt-2">
+                <button id="btn-login" onclick="handleLogin()" class="w-1/2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                    <span id="login-spinner" class="spinner hidden"></span>
+                    <span>লগইন</span>
+                </button>
+                <button id="btn-signup" onclick="handleSignUp()" class="w-1/2 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                    <span id="signup-spinner" class="spinner hidden"></span>
+                    <span>রেজিস্ট্রেশন</span>
+                </button>
+            </div>
+            
+            <!-- Message Box -->
+            <div id="auth-message" class="hidden text-xs p-3 rounded-xl mt-3 text-left font-sans"></div>
+        </div>
+    </section>
+
+    <!-- App Main Screen -->
+    <main id="app-screen" class="hidden max-w-2xl mx-auto p-4 space-y-6">
 
         <!-- Banner -->
         <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white">
@@ -63,7 +98,7 @@
         <!-- Post Creation Form -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
             <div class="flex gap-2">
-                <input type="text" id="author-name" placeholder="আপনার নাম (যেমন: সাইফুল)" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
+                <input type="text" id="author-name" readonly class="w-1/2 bg-gray-200 dark:bg-gray-600 p-2 rounded-lg text-xs font-bold dark:text-yellow-300 border dark:border-gray-500">
                 <select id="post-category" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
                     <option value="general">সাধারণ বার্তা</option>
                     <option value="archive">স্মৃতি/আর্কাইভ</option>
@@ -73,7 +108,7 @@
             
             <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
             
-            <!-- File Input -->
+            <!-- Direct File Attachment Input -->
             <div class="space-y-2 border-t dark:border-gray-700 pt-3">
                 <div class="flex items-center gap-2">
                     <label for="media-file" class="cursor-pointer bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 dark:text-white transition">
@@ -115,7 +150,7 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn flex flex-col items-center active text-yellow-400"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
         <button onclick="switchTab('islamic')" id="tab-islamic" class="tab-btn flex flex-col items-center text-gray-400"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
@@ -127,18 +162,133 @@
         const STORAGE_URL = `${SUPABASE_BASE}/storage/v1/object/media`;
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
-        const DELETE_PIN = '1234'; // মাস্টার ডিলিট পিন
+        const DELETE_PIN = '1234';
 
+        // Initialize Supabase Client SDK
+        const supabase = window.supabase.createClient(SUPABASE_BASE, SUPABASE_KEY);
+
+        let currentUser = null;
         let currentTab = 'feed';
         let mediaView = 'all';
         let selectedFile = null;
         let cachedPosts = [];
 
+        // Auth Listeners & Auto Session Restore
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                showAppScreen();
+            } else {
+                showAuthScreen();
+            }
+
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = session.user;
+                    showAppScreen();
+                } else {
+                    currentUser = null;
+                    showAuthScreen();
+                }
+            });
+        });
+
+        // 🔑 Login Handler
+        async function handleLogin() {
+            clearAuthMsg();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) return showAuthMsg("অনুগ্রহ করে ইমেইল ও পাসওয়ার্ড প্রদান করুন।");
+
+            const spinner = document.getElementById('login-spinner');
+            spinner.classList.remove('hidden');
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            spinner.classList.add('hidden');
+
+            if (error) {
+                if (error.message.includes('Email not confirmed')) {
+                    showAuthMsg("আপনার ইমেইলটি এখনও কনফার্ম করা হয়নি। Supabase থেকে ইমেইল ভেরিফিকেশন ডিজেবল করুন।");
+                } else {
+                    showAuthMsg("লগইন ব্যর্থ হয়েছে: " + error.message);
+                }
+            }
+        }
+
+        // 📝 Sign Up Handler
+        async function handleSignUp() {
+            clearAuthMsg();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!name || !email || !password) return showAuthMsg("আপনার নাম, ইমেইল এবং পাসওয়ার্ড প্রদান করুন।");
+            if (password.length < 6) return showAuthMsg("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।");
+
+            const spinner = document.getElementById('signup-spinner');
+            spinner.classList.remove('hidden');
+
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { full_name: name } }
+            });
+
+            spinner.classList.add('hidden');
+
+            if (error) {
+                showAuthMsg("রেজিস্ট্রেশন ব্যর্থ হয়েছে: " + error.message);
+            } else {
+                showAuthMsg("রেজিস্ট্রেশন সফল হয়েছে! লগইন হচ্ছে...", false);
+            }
+        }
+
+        // 🚪 Logout Handler
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
+        function showAuthMsg(text, isError = true) {
+            const msgBox = document.getElementById('auth-message');
+            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            msgBox.classList.add(isError ? 'bg-red-100' : 'bg-green-100', isError ? 'text-red-700' : 'text-green-700');
+            msgBox.innerText = text;
+        }
+
+        function clearAuthMsg() {
+            const msgBox = document.getElementById('auth-message');
+            msgBox.classList.add('hidden');
+        }
+
+        function showAppScreen() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            document.getElementById('user-profile-header').classList.remove('hidden');
+
+            const displayName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'সদস্য';
+            document.getElementById('user-display-name').innerText = displayName;
+            document.getElementById('author-name').value = displayName;
+
+            fetchPosts();
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('user-profile-header').classList.add('hidden');
+        }
+
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (file) {
                 if (file.size > 50 * 1024 * 1024) {
-                    alert("ফাইল সাইজ ৫০ MB এর বেশি! অনুগ্রহ করে ছোট ভিডিও বা কমপ্রেস করা ফাইল নির্বাচন করুন।");
+                    alert("ফাইল সাইজ ৫০ MB এর বেশি! ছোট ফাইল নির্বাচন করুন।");
                     event.target.value = '';
                     return;
                 }
@@ -163,13 +313,12 @@
                 cachedPosts = await response.json();
                 renderPosts();
             } catch (err) {
-                console.error("Fetch Error:", err);
                 container.innerHTML = `<p class="text-center text-sm text-red-500 bg-red-100 p-3 rounded-lg">পোস্ট লোড করতে সমস্যা হয়েছে: ${err.message}</p>`;
             }
         }
 
         async function createPost() {
-            const author = document.getElementById('author-name').value.trim() || 'পারিবারিক সদস্য';
+            const author = document.getElementById('author-name').value || 'পারিবারিক সদস্য';
             const category = document.getElementById('post-category').value;
             const content = document.getElementById('post-text').value.trim();
             const statusLabel = document.getElementById('upload-status');
@@ -216,6 +365,7 @@
             const categoryLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
 
             const payload = {
+                user_id: currentUser ? currentUser.id : null,
                 author_name: `${author}${categoryLabel}`,
                 content: content || 'মিডিয়া ফাইল শেয়ার করেছেন',
                 media_url: uploadedMediaUrl
@@ -253,9 +403,8 @@
             }
         }
 
-        // 🗑️ Delete Post Functionality
         async function deletePost(postId) {
-            const inputPin = prompt("পোস্টটি ডিলিট করতে গোপন পিন (PIN) লিখুন:");
+            const inputPin = prompt("পোস্টটি ডিলিট করতে মাস্টার পিন (PIN) লিখুন:");
             if (!inputPin) return;
 
             if (inputPin !== DELETE_PIN) {
@@ -272,7 +421,7 @@
                 });
 
                 if (response.ok) {
-                    alert("পোস্টটি সফলভাবে মুছে ফেলা হয়েছে!");
+                    alert("পোস্টটি মুছে ফেলা হয়েছে!");
                     fetchPosts();
                 } else {
                     alert("পোস্ট ডিলিট করা যায়নি।");
@@ -409,8 +558,6 @@
 
             renderPosts();
         }
-
-        window.addEventListener('DOMContentLoaded', fetchPosts);
     </script>
 </body>
 </html>
