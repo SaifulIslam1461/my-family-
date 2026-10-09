@@ -48,7 +48,13 @@
         <div id="user-profile-header" class="hidden flex items-center gap-2">
             <img id="header-avatar" src="" class="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 hidden">
             <span id="user-display-name" class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold"></span>
-            <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg transition font-bold">
+            
+            <!-- Settings Icon Button -->
+            <button onclick="openSettingsModal()" title="এডমিন সেটিংস" class="text-xs bg-yellow-600 hover:bg-yellow-500 text-white p-2 rounded-lg transition font-bold">
+                <i class="fa-solid fa-gear text-sm"></i>
+            </button>
+
+            <button onclick="handleLogout()" title="লগআউট" class="text-xs bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg transition font-bold">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </button>
         </div>
@@ -92,17 +98,19 @@
         <!-- Banner Section -->
         <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white">
             <img id="banner-img" src="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=800" class="w-full h-40 object-cover opacity-50" alt="Banner">
-            
-            <label for="banner-file-input" class="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-1.5 backdrop-blur-sm transition z-10 border border-white/20">
-                <i class="fa-solid fa-camera text-yellow-400"></i>
-                <span>ব্যানার পরিবর্তন</span>
-            </label>
-            <input type="file" id="banner-file-input" accept="image/*" class="hidden" onchange="changeBannerImage(event)">
-
             <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent w-full">
                 <h2 id="tab-title" class="text-xl font-bold text-yellow-400">পারিবারিক আর্কাইভ</h2>
                 <p id="tab-subtitle" class="text-xs italic">"ঈমান, একতা ও ঐতিহ্যের বন্ধন"</p>
             </div>
+        </div>
+
+        <!-- System Announcement Box -->
+        <div id="announcement-box" class="hidden bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-900 dark:text-amber-200 p-3 rounded-r-xl text-xs space-y-1">
+            <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                <i class="fa-solid fa-bullhorn text-sm"></i>
+                <span>জরুরি বার্তা / আপডেট নোটিশ</span>
+            </div>
+            <p id="announcement-text" class="italic"></p>
         </div>
 
         <!-- Members List Box -->
@@ -122,7 +130,6 @@
         <!-- Post Creation Form -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
             <div class="flex gap-2 items-center">
-                <!-- User Avatar & Instant Change -->
                 <label for="instant-avatar-input" class="cursor-pointer relative flex-shrink-0" title="ছবি পরিবর্তন করতে চাপুন">
                     <img id="form-user-avatar" src="" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-800 hidden">
                     <div id="form-avatar-placeholder" class="w-10 h-10 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs border border-yellow-400">
@@ -177,6 +184,44 @@
         </div>
     </main>
 
+    <!-- ⚙️ Admin Settings Modal Window -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b dark:border-gray-700 pb-3">
+                <h3 class="font-bold text-emerald-800 dark:text-yellow-400 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-lg"></i>
+                    <span>এডমিন ও কন্ট্রোল প্যানেল</span>
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
+            </div>
+
+            <!-- Manage Registered Members Section -->
+            <div class="space-y-2 border-b dark:border-gray-700 pb-4">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">সদস্যদের তালিকা ব্যবস্থাপনা (অনাকাঙ্ক্ষিত সদস্য ডিলিট)</h4>
+                <div id="settings-members-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    <p class="text-xs text-gray-400">লোড হচ্ছে...</p>
+                </div>
+            </div>
+
+            <!-- Custom Banner Change Section -->
+            <div class="space-y-2 border-b dark:border-gray-700 pb-4">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">অ্যাপের ব্যানার পিকচার পরিবর্তন</h4>
+                <input type="file" id="settings-banner-file" accept="image/*" class="text-xs w-full dark:text-white">
+                <button onclick="changeBannerFromSettings()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">ব্যানার আপলোড করুন</button>
+            </div>
+
+            <!-- Announcement/Update Section -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">পারিবারিক নোটিশ/বার্তা প্রকাশ</h4>
+                <textarea id="settings-notice-input" placeholder="পরিবারের সব সদস্যকে জানানোর জন্য নোটিশ বা আপডেট বার্তা লিখুন..." class="w-full text-xs p-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" rows="2"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="publishNotice()" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">নোটিশ দিন</button>
+                    <button onclick="clearNotice()" class="bg-gray-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">নোটিশ মুছুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Image Modal for Full Preview -->
     <div id="image-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onclick="closeModal()">
         <img id="modal-img" src="" class="max-w-full max-h-[90vh] rounded-lg">
@@ -210,6 +255,12 @@
                 document.getElementById('banner-img').src = savedBanner;
             }
 
+            const savedNotice = localStorage.getItem('family_announcement');
+            if (savedNotice) {
+                document.getElementById('announcement-text').innerText = savedNotice;
+                document.getElementById('announcement-box').classList.remove('hidden');
+            }
+
             const savedUser = localStorage.getItem('family_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -219,7 +270,121 @@
             }
         });
 
-        // 📸 Instant Profile Avatar Update
+        // ⚙️ Open & Security Check for Admin Settings
+        function openSettingsModal() {
+            const pin = prompt("এডমিন সেটিংস প্যানেলে প্রবেশ করতে মাস্টার পিন (PIN) লিখুন:");
+            if (pin === DELETE_PIN) {
+                document.getElementById('settings-modal').classList.remove('hidden');
+                loadSettingsMembers();
+            } else if (pin) {
+                alert("ভুল পিন কোড! আপনি এডমিন সেটিংসে প্রবেশ করতে পারবেন না।");
+            }
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        // 👥 Member Delete Option inside Settings
+        async function loadSettingsMembers() {
+            const container = document.getElementById('settings-members-list');
+            container.innerHTML = '<p class="text-xs text-gray-400">সদস্য তালিকা লোড হচ্ছে...</p>';
+
+            try {
+                const res = await fetch(`${SUPABASE_MEMBERS}?select=id,name,email,avatar_url&order=created_at.asc`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const members = await res.json();
+
+                if (members && members.length > 0) {
+                    container.innerHTML = '';
+                    members.forEach(m => {
+                        container.innerHTML += `
+                            <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-2 rounded-lg text-xs">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-user-gear text-emerald-600 dark:text-yellow-400"></i>
+                                    <div>
+                                        <p class="font-bold dark:text-white">${m.name}</p>
+                                        <p class="text-[10px] text-gray-400">${m.email}</p>
+                                    </div>
+                                </div>
+                                <button onclick="deleteMember('${m.id}', '${m.name}')" class="bg-red-500 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded font-bold">
+                                    <i class="fa-solid fa-trash"></i> রিমুভ
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-red-400">সদস্য তালিকা লোড করা যায়নি</p>';
+            }
+        }
+
+        async function deleteMember(memberId, memberName) {
+            if (!confirm(`আপনি কি নিশ্চিত যে "${memberName}" কে পারিবারিক তালিকা থেকে ডিলিট/রিমুভ করতে চান?`)) return;
+
+            try {
+                const res = await fetch(`${SUPABASE_MEMBERS}?id=eq.${memberId}`, {
+                    method: 'DELETE',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+
+                if (res.ok) {
+                    alert(`${memberName} কে সফলভাবে অ্যাকাউন্ট থেকে রিমুভ করা হয়েছে।`);
+                    loadSettingsMembers();
+                    fetchMembers();
+                } else {
+                    alert("সদস্য রিমুভ করা সম্ভব হয়নি।");
+                }
+            } catch (e) {
+                alert("ত্রুটি: " + e.message);
+            }
+        }
+
+        async function changeBannerFromSettings() {
+            const file = document.getElementById('settings-banner-file').files[0];
+            if (!file) return alert("একটি ছবি নির্বাচন করুন!");
+
+            try {
+                const cleanFileName = `banner_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': file.type || 'image/jpeg'
+                    },
+                    body: file
+                });
+
+                if (uploadRes.ok) {
+                    const newBannerUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                    document.getElementById('banner-img').src = newBannerUrl;
+                    localStorage.setItem('family_banner_url', newBannerUrl);
+                    alert("পারিবারিক ব্যানার সফলভাবে আপডেট করা হয়েছে!");
+                }
+            } catch (e) {
+                alert("ত্রুটি: " + e.message);
+            }
+        }
+
+        function publishNotice() {
+            const text = document.getElementById('settings-notice-input').value.trim();
+            if (!text) return alert("নোটিশ লিখুন!");
+
+            localStorage.setItem('family_announcement', text);
+            document.getElementById('announcement-text').innerText = text;
+            document.getElementById('announcement-box').classList.remove('hidden');
+            alert("নোটিশ প্রকাশ করা হয়েছে!");
+        }
+
+        function clearNotice() {
+            localStorage.removeItem('family_announcement');
+            document.getElementById('announcement-box').classList.add('hidden');
+            document.getElementById('settings-notice-input').value = '';
+            alert("নোটিশ মুছে ফেলা হয়েছে!");
+        }
+
         async function updateProfileAvatar(event) {
             const file = event.target.files[0];
             if (!file || !currentUser) return;
@@ -242,7 +407,6 @@
                 if (uploadRes.ok) {
                     const avatarUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     
-                    // Update Database using id or email
                     await fetch(`${SUPABASE_MEMBERS}?email=eq.${currentUser.email}`, {
                         method: 'PATCH',
                         headers: {
@@ -259,41 +423,11 @@
                     showAppScreen();
                     statusLabel.innerText = "";
                     alert("প্রোফাইল ছবি সফলভাবে যুক্ত হয়েছে!");
-                } else {
-                    alert("ছবি আপলোড হতে পারেনি। SQL Update Policy পরীক্ষা করুন।");
                 }
             } catch (e) {
                 alert("ছবি আপলোড হতে পারেনি: " + e.message);
             } finally {
                 statusLabel.innerText = "";
-            }
-        }
-
-        async function changeBannerImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            alert("ব্যানার ছবি আপলোড হচ্ছে...");
-            try {
-                const cleanFileName = `banner_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': file.type || 'image/jpeg'
-                    },
-                    body: file
-                });
-
-                if (uploadRes.ok) {
-                    const newBannerUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
-                    document.getElementById('banner-img').src = newBannerUrl;
-                    localStorage.setItem('family_banner_url', newBannerUrl);
-                    alert("পারিবারিক ব্যানার আপডেট করা হয়েছে!");
-                }
-            } catch (e) {
-                alert("ত্রুটি: " + e.message);
             }
         }
 
