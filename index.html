@@ -95,16 +95,13 @@
     </nav>
 
     <script>
-        // Supabase Endpoint & Key
         const SUPABASE_URL = 'https://zwpoxufpeluqtdooeekr.supabase.co/rest/v1/posts';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
         let currentTab = 'feed';
 
-        // Direct Native Fetch API - No External SDK Required
         async function fetchPosts() {
             const container = document.getElementById('posts-container');
-            container.innerHTML = `<p class="text-center text-sm text-gray-500 py-4">লোডিং হচ্ছে...</p>`;
 
             try {
                 const response = await fetch(`${SUPABASE_URL}?select=*&order=created_at.desc`, {
@@ -114,9 +111,7 @@
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const posts = await response.json();
                 renderPosts(posts);
@@ -126,7 +121,6 @@
             }
         }
 
-        // Create Post
         async function createPost() {
             const author = document.getElementById('author-name').value.trim() || 'পারিবারিক সদস্য';
             const category = document.getElementById('post-category').value;
@@ -142,8 +136,8 @@
 
             const categoryLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
 
+            // Notice: user_id is completely removed to avoid foreign key errors!
             const payload = {
-                user_id: '00000000-0000-0000-0000-000000000000',
                 author_name: `${author}${categoryLabel}`,
                 content: content,
                 media_url: media_url || null
@@ -177,7 +171,6 @@
             }
         }
 
-        // Render Feed
         function renderPosts(posts) {
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
@@ -218,7 +211,6 @@
             });
         }
 
-        // Switch Tabs
         function switchTab(tab) {
             currentTab = tab;
 
@@ -250,7 +242,6 @@
             fetchPosts();
         }
 
-        // Initialize on load
         window.addEventListener('DOMContentLoaded', fetchPosts);
     </script>
 </body>
