@@ -428,6 +428,7 @@
         const SUPABASE_BASE = 'https://zwpoxufpeluqtdooeekr.supabase.co';
         const SUPABASE_POSTS = `${SUPABASE_BASE}/rest/v1/posts`;
         const SUPABASE_MEMBERS = `${SUPABASE_BASE}/rest/v1/family_members`;
+        const SUPABASE_SETTINGS = `${SUPABASE_BASE}/rest/v1/family_settings`;
         const STORAGE_URL = `${SUPABASE_BASE}/storage/v1/object/media`;
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
@@ -669,16 +670,9 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify({ reactions: reactions })
                 });
-                if (res.ok) {
-                    post.reactions = reactions;
-                    closeReactionModal();
-                    renderPosts();
-                } else {
-                    // Fallback to local storage update if database column is missing
-                    post.reactions = reactions;
-                    closeReactionModal();
-                    renderPosts();
-                }
+                post.reactions = reactions;
+                closeReactionModal();
+                renderPosts();
             } catch (e) {
                 post.reactions = reactions;
                 closeReactionModal();
@@ -712,15 +706,9 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify({ comments: comments })
                 });
-                if (res.ok) {
-                    post.comments = comments;
-                    input.value = '';
-                    renderPosts();
-                } else {
-                    post.comments = comments;
-                    input.value = '';
-                    renderPosts();
-                }
+                post.comments = comments;
+                input.value = '';
+                renderPosts();
             } catch (e) {
                 post.comments = comments;
                 input.value = '';
@@ -801,17 +789,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const savedIcon = localStorage.getItem('family_app_icon');
-            if (savedIcon) applyAppIcon(savedIcon);
-
-            const savedBanner = localStorage.getItem('family_banner_url');
-            if (savedBanner) document.getElementById('banner-img').src = savedBanner;
-
-            const savedNotice = localStorage.getItem('family_announcement');
-            if (savedNotice) {
-                document.getElementById('announcement-text').innerText = savedNotice;
-                document.getElementById('announcement-box').classList.remove('hidden');
-            }
+            loadGlobalSettingsFromCloud();
 
             const savedUser = localStorage.getItem('family_user');
             if (savedUser) {
@@ -821,6 +799,51 @@
                 showAuthScreen();
             }
         });
+
+        async function loadGlobalSettingsFromCloud() {
+            try {
+                const res = await fetch(`${SUPABASE_SETTINGS}?select=*`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const settings = await res.json();
+                if (settings && settings.length > 0) {
+                    const config = settings[0];
+                    if (config.app_icon_url) applyAppIcon(config.app_icon_url);
+                    if (config.banner_url) document.getElementById('banner-img').src = config.banner_url;
+                    if (config.announcement) {
+                        document.getElementById('announcement-text').innerText = config.announcement;
+                        document.getElementById('announcement-box').classList.remove('hidden');
+                    }
+                }
+            } catch (e) { console.log("Settings Load Error:", e); }
+        }
+
+        async function saveGlobalSettingToCloud(key, value) {
+            try {
+                // Check if settings row exists
+                const checkRes = await fetch(`${SUPABASE_SETTINGS}?select=id`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const rows = await checkRes.json();
+
+                let bodyData = {};
+                bodyData[key] = value;
+
+                if (rows && rows.length > 0) {
+                    await fetch(`${SUPABASE_SETTINGS}?id=eq.${rows[0].id}`, {
+                        method: 'PATCH',
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+                        body: JSON.stringify(bodyData)
+                    });
+                } else {
+                    await fetch(SUPABASE_SETTINGS, {
+                        method: 'POST',
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+                        body: JSON.stringify(bodyData)
+                    });
+                }
+            } catch (e) { console.error("Cloud Save Error:", e); }
+        }
 
         function applyAppIcon(iconUrl) {
             document.getElementById('dynamic-favicon').href = iconUrl;
@@ -840,13 +863,16 @@
                 if (uploadRes.ok) {
                     const iconUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     applyAppIcon(iconUrl);
-                    localStorage.setItem('family_app_icon', iconUrl);
-                    alert("আইকন আপডেট হয়েছে!");
+                    await saveGlobalSettingToCloud('app_icon_url', iconUrl);
+                    alert("আইকন সবার জন্য আপডেট হয়েছে!");
                 }
             } catch (e) { alert(e.message); }
         }
 
-        function resetAppIcon() { localStorage.removeItem('family_app_icon'); location.reload(); }
+        async function resetAppIcon() {
+            await saveGlobalSettingToCloud('app_icon_url', null);
+            location.reload();
+        }
 
         function openSettingsModal() {
             const pass = prompt("সেটিংস পাসওয়ার্ড দিন:");
@@ -901,22 +927,22 @@
             if (res.ok) {
                 const url = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                 document.getElementById('banner-img').src = url;
-                localStorage.setItem('family_banner_url', url);
-                alert("ব্যানার আপডেট হয়েছে!");
+                await saveGlobalSettingToCloud('banner_url', url);
+                alert("ব্যানার সবার জন্য আপডেট হয়েছে!");
             }
         }
 
-        function publishNotice() {
+        async function publishNotice() {
             const text = document.getElementById('settings-notice-input').value.trim();
             if (!text) return;
-            localStorage.setItem('family_announcement', text);
+            await saveGlobalSettingToCloud('announcement', text);
             document.getElementById('announcement-text').innerText = text;
             document.getElementById('announcement-box').classList.remove('hidden');
-            alert("নোটিশ দেওয়া হয়েছে!");
+            alert("নোটিশ সবার জন্য দেওয়া হয়েছে!");
         }
 
-        function clearNotice() {
-            localStorage.removeItem('family_announcement');
+        async function clearNotice() {
+            await saveGlobalSettingToCloud('announcement', null);
             document.getElementById('announcement-box').classList.add('hidden');
             alert("নোটিশ মোছা হয়েছে!");
         }
