@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>পারিবারিক ঐতিহ্য - Family Heritage</title>
 
-    <!-- 📱 Default Dynamic PWA App Icon (Family Roof SVG) -->
-    <link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>">
-    <link id="dynamic-apple-icon" rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>">
+    <!-- 📱 Web App Manifest & App Standalone Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="পারিবারিক ঐতিহ্য">
     <meta name="theme-color" content="#1b4332">
+
+    <!-- App Icon -->
+    <link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>">
+    <link id="dynamic-apple-icon" rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%231b4332'/><path d='M256 120 L380 230 L350 230 L350 360 L162 360 L162 230 L132 230 Z' fill='%23D4AF37'/><circle cx='210' cy='280' r='20' fill='%23ffffff'/><circle cx='256' cy='260' r='25' fill='%23ffffff'/><circle cx='302' cy='280' r='20' fill='%23ffffff'/></svg>">
 
     <!-- FontAwesome & Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
@@ -132,7 +138,7 @@
             </div>
         </div>
 
-        <!-- 📲 Specific Place Dedicated Install App Button -->
+        <!-- 📲 Install Button Place -->
         <div class="flex justify-end">
             <button onclick="triggerAppInstall()" class="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-emerald-950 font-bold text-xs px-4 py-2 rounded-xl shadow-md transition flex items-center gap-2 border border-yellow-300/50">
                 <i class="fa-solid fa-download text-sm"></i>
@@ -197,7 +203,7 @@
         </div>
     </main>
 
-    <!-- ⚙️ Admin Settings Modal -->
+    <!-- Admin Settings Modal -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b dark:border-gray-700 pb-3">
@@ -208,7 +214,6 @@
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
             </div>
 
-            <!-- App Icon Customization Section -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">📱 অ্যাপ আইকন (App Icon) কাস্টমাইজ করুন</h4>
                 <input type="file" id="settings-app-icon-file" accept="image/*" class="text-xs w-full dark:text-white">
@@ -218,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Manage Members Section -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">সদস্যদের তালিকা ব্যবস্থাপনা (অনাকাঙ্ক্ষিত সদস্য ডিলিট)</h4>
                 <div id="settings-members-list" class="space-y-2 max-h-36 overflow-y-auto pr-1">
@@ -226,14 +230,12 @@
                 </div>
             </div>
 
-            <!-- Banner Customization -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">অ্যাপের ব্যানার পিকচার পরিবর্তন</h4>
                 <input type="file" id="settings-banner-file" accept="image/*" class="text-xs w-full dark:text-white">
                 <button onclick="changeBannerFromSettings()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">ব্যানার আপলোড করুন</button>
             </div>
 
-            <!-- Notice Section -->
             <div class="space-y-2">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">পারিবারিক নোটিশ/বার্তা প্রকাশ</h4>
                 <textarea id="settings-notice-input" placeholder="পরিবারের সব সদস্যকে জানানোর জন্য নোটিশ বা আপডেট বার্তা লিখুন..." class="w-full text-xs p-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" rows="2"></textarea>
@@ -273,6 +275,11 @@
         let cachedPosts = [];
         let deferredPrompt = null;
 
+        // Service Worker Registration for PWA Install
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Reg Fail:', err));
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -283,12 +290,12 @@
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
+                        console.log('User installed the app');
                     }
                     deferredPrompt = null;
                 });
             } else {
-                alert("অ্যাপটি ইনস্টল করতে আপনার ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিন এবং 'Add to Home screen' বা 'Install App' বেছে নিন।");
+                alert("অ্যাপটি সরাসরি ইনস্টল করতে Chrome ব্রাউজারের উপরে থাকা ৩টি ডট (⋮) অপশনে চাপ দিয়ে 'Add to Home screen' বা 'Install App' চেপে দিন।");
             }
         }
 
