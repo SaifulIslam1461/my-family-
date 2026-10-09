@@ -31,8 +31,8 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: #ffffff;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             animation: spin 0.8s linear infinite;
             display: inline-block;
         }
@@ -49,38 +49,11 @@
             <i class="fa-solid fa-people-roof text-2xl text-yellow-400"></i>
             <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য v1.0</h1>
         </div>
-        <button id="logout-btn" onclick="handleLogout()" class="hidden text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition font-bold">
-            <i class="fa-solid fa-right-from-bracket mr-1"></i> লগআউট
-        </button>
+        <span class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold">পাবলিক মোড</span>
     </header>
 
-    <!-- Auth Section (Login / Sign Up) -->
-    <section id="auth-screen" class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl mt-10 text-center">
-        <i class="fa-solid fa-kaaba text-5xl text-emerald-800 dark:text-yellow-400 mb-4"></i>
-        <h2 class="text-xl font-bold mb-4 text-emerald-800 dark:text-yellow-400">পারিবারিক নেটওয়ার্কে প্রবেশ করুন</h2>
-        
-        <div class="space-y-3">
-            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
-            <input type="password" id="auth-password" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800">
-            
-            <div class="flex gap-2 pt-2">
-                <button id="btn-login" onclick="handleLogin()" class="w-1/2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
-                    <span id="login-spinner" class="spinner hidden"></span>
-                    <span id="login-text">লগইন</span>
-                </button>
-                <button id="btn-signup" onclick="handleSignUp()" class="w-1/2 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
-                    <span id="signup-spinner" class="spinner hidden"></span>
-                    <span id="signup-text">রেজিস্ট্রেশন</span>
-                </button>
-            </div>
-            
-            <!-- Dynamic Status Message -->
-            <div id="auth-message" class="hidden text-xs p-3 rounded-xl mt-3 text-left font-sans"></div>
-        </div>
-    </section>
-
     <!-- App Main Screen -->
-    <main id="app-screen" class="hidden max-w-2xl mx-auto p-4 space-y-6">
+    <main id="app-screen" class="max-w-2xl mx-auto p-4 space-y-6">
 
         <!-- Banner -->
         <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white">
@@ -93,9 +66,11 @@
 
         <!-- Create Post -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
+            <input type="text" id="author-name" placeholder="আপনার নাম (যেমন: সাইফুল)" class="w-full bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
             <textarea id="post-text" placeholder="পরিবারের জন্য কোনো স্মৃতি বা বার্তা লিখুন..." class="w-full bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm focus:outline-none dark:text-white" rows="2"></textarea>
-            <div class="flex justify-between items-center border-t dark:border-gray-700 pt-3">
-                <input type="text" id="image-url" placeholder="ছবি/ভিডিও লিংক (ঐচ্ছিক)" class="text-xs p-2 bg-gray-100 dark:bg-gray-700 rounded w-2/3 dark:text-white">
+            
+            <div class="flex justify-between items-center border-t dark:border-gray-700 pt-3 gap-2">
+                <input type="text" id="image-url" placeholder="ছবি/ভিডিও লিঙ্ক (ঐচ্ছিক)" class="text-xs p-2 bg-gray-100 dark:bg-gray-700 rounded w-2/3 dark:text-white border dark:border-gray-600">
                 <button id="btn-create-post" onclick="createPost()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-2">
                     <span id="post-spinner" class="spinner hidden"></span>
                     <span id="post-btn-text">পোস্ট করুন</span>
@@ -110,7 +85,7 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
+    <nav id="bottom-nav" class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around p-2 text-xs z-40">
         <button class="flex flex-col items-center active-tab"><i class="fa-solid fa-house text-lg"></i><span>হোম ফিড</span></button>
         <button class="flex flex-col items-center"><i class="fa-solid fa-box-archive text-lg"></i><span>আর্কাইভ</span></button>
         <button class="flex flex-col items-center"><i class="fa-solid fa-mosque text-lg"></i><span>ইসলামিক</span></button>
@@ -124,174 +99,32 @@
         // Initialize Client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Global State & Auth Listener
-        window.addEventListener('DOMContentLoaded', async () => {
-            // Setup Realtime Auth State Tracking
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    showAppScreen();
-                } else {
-                    showAuthScreen();
-                }
-            });
-        });
-
-        // Helper UI Message Display
-        function showAuthMsg(text, isError = true) {
-            const msgBox = document.getElementById('auth-message');
-            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-            
-            if (isError) {
-                msgBox.classList.add('bg-red-100', 'text-red-700');
-            } else {
-                msgBox.classList.add('bg-green-100', 'text-green-700');
-            }
-            msgBox.innerText = text;
-        }
-
-        function clearAuthMsg() {
-            const msgBox = document.getElementById('auth-message');
-            msgBox.classList.add('hidden');
-            msgBox.innerText = '';
-        }
-
-        // Login Handler
-        async function handleLogin() {
-            clearAuthMsg();
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-
-            if (!email || !password) {
-                return showAuthMsg('অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন।', true);
-            }
-
-            // Set Loading UI
-            setLoading('login', true);
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    if (error.message.includes('Email not confirmed')) {
-                        showAuthMsg('আপনার ইমেইলটি এখনো ভেরিফাই করা হয়নি। আপনার ইনবক্স চেক করে লিঙ্কটিতে ক্লিক করুন।', true);
-                    } else if (error.message.includes('Invalid login credentials')) {
-                        showAuthMsg('ইমেইল অথবা পাসওয়ার্ড ভুল হয়েছে। সঠিক তথ্য দিয়ে পুনরায় চেষ্টা করুন।', true);
-                    } else {
-                        showAuthMsg('লগইন করতে সমস্যা হয়েছে: ' + error.message, true);
-                    }
-                } else {
-                    showAuthMsg('লগইন সফল হয়েছে! অ্যাপ লোড হচ্ছে...', false);
-                }
-            } catch (err) {
-                showAuthMsg('নেটওয়ার্ক অথবা সার্ভার এরর! পুনরায় চেষ্টা করুন।', true);
-            } finally {
-                setLoading('login', false);
-            }
-        }
-
-        // SignUp Handler
-        async function handleSignUp() {
-            clearAuthMsg();
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-
-            if (!email || !password) {
-                return showAuthMsg('অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন।', true);
-            }
-            if (password.length < 6) {
-                return showAuthMsg('পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।', true);
-            }
-
-            // Set Loading UI
-            setLoading('signup', true);
-
-            try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
-
-                if (error) {
-                    showAuthMsg('রেজিস্ট্রেশন ব্যর্থ হয়েছে: ' + error.message, true);
-                } else {
-                    if (data.session) {
-                        showAuthMsg('রেজিস্ট্রেশন ও অটো-লগইন সফল হয়েছে!', false);
-                    } else {
-                        showAuthMsg('রেজিস্ট্রেশন সফল হয়েছে! আপনার ইমেইল ইনবক্সে গিয়ে ভেরিফিকেশন লিঙ্কে ক্লিক করে নিশ্চিত করুন।', false);
-                    }
-                }
-            } catch (err) {
-                showAuthMsg('নেটওয়ার্ক এরর! পুনরায় চেষ্টা করুন।', true);
-            } finally {
-                setLoading('signup', false);
-            }
-        }
-
-        // Logout Handler
-        async function handleLogout() {
-            await supabase.auth.signOut();
-            location.reload();
-        }
-
-        // Screen Navigation
-        function showAppScreen() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            document.getElementById('bottom-nav').classList.remove('hidden');
-            document.getElementById('logout-btn').classList.remove('hidden');
+        // পেজ লোড হলেই পোস্ট নিয়ে আসবে
+        window.addEventListener('DOMContentLoaded', () => {
             loadPosts();
             setupRealtime();
-        }
+        });
 
-        function showAuthScreen() {
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('app-screen').classList.add('hidden');
-            document.getElementById('bottom-nav').classList.add('hidden');
-            document.getElementById('logout-btn').classList.add('hidden');
-        }
-
-        // Loading Toggle Helper
-        function setLoading(type, isLoading) {
-            const btnLogin = document.getElementById('btn-login');
-            const btnSignup = document.getElementById('btn-signup');
-            const loginSpinner = document.getElementById('login-spinner');
-            const signupSpinner = document.getElementById('signup-spinner');
-
-            if (type === 'login') {
-                btnLogin.disabled = isLoading;
-                btnSignup.disabled = isLoading;
-                if (isLoading) {
-                    loginSpinner.classList.remove('hidden');
-                } else {
-                    loginSpinner.classList.add('hidden');
-                }
-            } else if (type === 'signup') {
-                btnLogin.disabled = isLoading;
-                btnSignup.disabled = isLoading;
-                if (isLoading) {
-                    signupSpinner.classList.remove('hidden');
-                } else {
-                    signupSpinner.classList.add('hidden');
-                }
-            }
-        }
-
-        // Create Post
+        // নতুন পোস্ট তৈরি (Anonymous/Public Post)
         async function createPost() {
+            const author = document.getElementById('author-name').value.trim() || 'পারিবারিক সদস্য';
             const content = document.getElementById('post-text').value.trim();
             const media_url = document.getElementById('image-url').value.trim();
             
             if (!content) return alert("অনুগ্রহ করে বার্তা বা পোস্টটি লিখুন!");
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return alert("লগইন সেশন পাওয়া যায়নি। পুনরায় লগইন করুন।");
 
             const postSpinner = document.getElementById('post-spinner');
             const postBtn = document.getElementById('btn-create-post');
             postSpinner.classList.remove('hidden');
             postBtn.disabled = true;
 
+            // রাণ্ডম একটি আইডি জেনারেট করে পোস্ট করা হবে
+            const randomUserId = '00000000-0000-0000-0000-000000000000';
+
             const { error } = await supabase.from('posts').insert([
                 { 
-                    user_id: user.id, 
-                    author_name: user.email ? user.email.split('@')[0] : 'User', 
+                    user_id: randomUserId, 
+                    author_name: author, 
                     content: content, 
                     media_url: media_url || null 
                 }
@@ -305,11 +138,11 @@
                 document.getElementById('image-url').value = '';
                 loadPosts();
             } else {
-                alert("পোস্ট সাবমিট করা যায়নি: " + error.message);
+                alert("পোস্ট সাবমিট করা যায়নি। Supabase RLS Policy চেক করুন: " + error.message);
             }
         }
 
-        // Load Posts
+        // পোস্ট লোড করা
         async function loadPosts() {
             const container = document.getElementById('posts-container');
             
@@ -334,7 +167,7 @@
                                 <div class="flex items-center space-x-2">
                                     <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
                                     <div>
-                                        <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'User'}</h4>
+                                        <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
                                         <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
                                     </div>
                                 </div>
