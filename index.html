@@ -686,6 +686,7 @@
         async function addComment(postId) {
             if (!currentUser) return;
             const input = document.getElementById(`comment-input-${postId}`);
+            if (!input) return;
             const text = input.value.trim();
             if (!text) return;
 
@@ -712,6 +713,8 @@
                     post.comments = comments;
                     input.value = '';
                     renderPosts();
+                } else {
+                    alert("কমেন্ট করতে সমস্যা হয়েছে!");
                 }
             } catch (e) {
                 console.log(e);
