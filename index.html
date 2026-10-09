@@ -278,15 +278,15 @@
                 <button onclick="changeBannerFromSettings()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">ব্যানার আপলোড করুন</button>
             </div>
 
-            <!-- 🔔 Call Ringtone Customization Section -->
+            <!-- 🔔 Call Ringtone File Upload Section -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
-                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">📞 কলের রিংটোন কাস্টমাইজ (Ringtone URL)</h4>
-                <p class="text-[10px] text-gray-400">যেকোনো একটি অনলাইন অডিও (.mp3) লিংক এখানে দিন:</p>
-                <input type="text" id="settings-ringtone-input" placeholder="https://example.com/ringtone.mp3" class="w-full text-xs p-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">📞 ডিভাইস থেকে রিংটোন অডিও (.mp3) আপলোড করুন</h4>
+                <input type="file" id="settings-ringtone-file" accept="audio/*" class="text-xs w-full dark:text-white">
                 <div class="flex gap-2 pt-1">
-                    <button onclick="saveRingtone()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">রিংটোন সেভ করুন</button>
+                    <button onclick="uploadAndSaveRingtone()" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold">রিংটোন আপলোড ও সেভ</button>
                     <button onclick="testRingtone()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">টেস্ট করুন</button>
                 </div>
+                <p id="ringtone-status" class="text-[10px] text-gray-400 italic"></p>
             </div>
 
             <!-- Notice Section -->
@@ -351,7 +351,7 @@
             }
         }
 
-        // 📞 Call Ringtone & Video Call Integration
+        // 📞 Ringtone Functions
         function playRingtone() {
             const defaultRing = 'https://actions.google.com/sounds/v1/alarms/phone_ringing_multiple.ogg';
             const customRing = localStorage.getItem('family_ringtone_url') || defaultRing;
@@ -370,10 +370,51 @@
             }
         }
 
+        async function uploadAndSaveRingtone() {
+            const fileInput = document.getElementById('settings-ringtone-file');
+            const file = fileInput.files[0];
+            const statusLabel = document.getElementById('ringtone-status');
+
+            if (!file) return alert("একটি অডিও (.mp3) ফাইল সিলেক্ট করুন!");
+
+            statusLabel.innerText = "রিংটোন আপলোড হচ্ছে...";
+            try {
+                const cleanFileName = `ringtone_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': file.type || 'audio/mpeg'
+                    },
+                    body: file
+                });
+
+                if (uploadRes.ok) {
+                    const audioUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                    localStorage.setItem('family_ringtone_url', audioUrl);
+                    statusLabel.innerText = "";
+                    alert("রিংটোন সফলভাবে আপলোড ও সেভ করা হয়েছে!");
+                } else {
+                    statusLabel.innerText = "";
+                    alert("আপলোড ব্যর্থ হয়েছে।");
+                }
+            } catch (e) {
+                statusLabel.innerText = "";
+                alert("ত্রুটি: " + e.message);
+            }
+        }
+
+        function testRingtone() {
+            playRingtone();
+            setTimeout(() => { stopRingtone(); }, 5000);
+            alert("৫ সেকেন্ডের জন্য রিংটোন টেস্ট বাজানো হলো।");
+        }
+
         function startVideoCall() {
             if (!currentUser) return alert("ভিডিও কল করতে প্রথমে লগইন করুন!");
             
-            playRingtone(); // Play Ringtone on Call Start
+            playRingtone();
             document.getElementById('call-modal').classList.remove('hidden');
 
             const domain = 'meet.jit.si';
@@ -382,9 +423,7 @@
                 width: '100%',
                 height: '100%',
                 parentNode: document.querySelector('#jitsi-container'),
-                userInfo: {
-                    displayName: currentUser.name
-                },
+                userInfo: { displayName: currentUser.name },
                 configOverwrite: {
                     startWithAudioMuted: false,
                     startWithVideoMuted: false,
@@ -400,7 +439,6 @@
             if (jitsiApi) jitsiApi.dispose();
             jitsiApi = new JitsiMeetExternalAPI(domain, options);
             
-            // Stop ringtone once connected/loaded
             setTimeout(() => { stopRingtone(); }, 3000);
         }
 
@@ -411,19 +449,6 @@
                 jitsiApi = null;
             }
             document.getElementById('call-modal').classList.add('hidden');
-        }
-
-        function saveRingtone() {
-            const url = document.getElementById('settings-ringtone-input').value.trim();
-            if (!url) return alert("সঠিক অডিও (.mp3) লিংক দিন!");
-            localStorage.setItem('family_ringtone_url', url);
-            alert("রিংটোন সফলভাবে সেভ করা হয়েছে!");
-        }
-
-        function testRingtone() {
-            playRingtone();
-            setTimeout(() => { stopRingtone(); }, 5000);
-            alert("৫ সেকেন্ডের জন্য রিংটোন টেস্ট বাজানো হলো।");
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -437,11 +462,6 @@
             if (savedNotice) {
                 document.getElementById('announcement-text').innerText = savedNotice;
                 document.getElementById('announcement-box').classList.remove('hidden');
-            }
-
-            const savedRing = localStorage.getItem('family_ringtone_url');
-            if (savedRing) {
-                document.getElementById('settings-ringtone-input').value = savedRing;
             }
 
             const savedUser = localStorage.getItem('family_user');
@@ -657,7 +677,7 @@
                     const cleanFileName = `avatar_${Date.now()}_${avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                     const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
                         method: 'POST',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': avatarFile.type || 'image/jpeg' },
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type || 'image/jpeg' },
                         body: avatarFile
                     });
                     if (uploadRes.ok) {
@@ -790,7 +810,7 @@
                     });
                 }
             } catch (e) {
-                container.innerHTML = `<p class="text-xs text-red-400">সদস্য লোড করা যায়নি</p>`;
+                container.innerHTML = `<p class="text-xs text-red-400">সদস্য তালিকা লোড করা যায়নি</p>`;
             }
         }
 
