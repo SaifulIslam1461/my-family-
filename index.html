@@ -676,10 +676,13 @@
                     closeReactionModal();
                     renderPosts();
                 } else {
-                    alert("প্রতিক্রিয়া সেভ করতে সমস্যা হয়েছে!");
+                    const errText = await res.text();
+                    console.error("Supabase Error:", errText);
+                    alert("প্রতিক্রিয়া সেভ করতে সমস্যা হয়েছে! দয়া করে Supabase এ reactions কলামটি JSON টাইপে তৈরি করা আছে কিনা চেক করুন।");
                 }
             } catch (e) {
-                console.log(e);
+                console.error(e);
+                alert("নেটওয়ার্ক ত্রুটি ঘটেছে!");
             }
         }
 
@@ -714,10 +717,13 @@
                     input.value = '';
                     renderPosts();
                 } else {
-                    alert("কমেন্ট করতে সমস্যা হয়েছে!");
+                    const errText = await res.text();
+                    console.error("Supabase Error:", errText);
+                    alert("কমেন্ট করতে সমস্যা হয়েছে! দয়া করে Supabase এ comments কলামটি JSON টাইপে তৈরি করা আছে কিনা চেক করুন।");
                 }
             } catch (e) {
-                console.log(e);
+                console.error(e);
+                alert("নেটওয়ার্ক ত্রুটি ঘটেছে!");
             }
         }
 
@@ -1132,7 +1138,7 @@
 
                 Object.keys(reactions).forEach(emoji => {
                     const list = reactions[emoji] || [];
-                    const count = list.length;
+                    const count = Array.isArray(list) ? list.length : 0;
                     totalReactions += count;
                     if (currentUser && Array.isArray(list) && list.includes(currentUser.email)) {
                         userReactedEmoji = emoji;
@@ -1142,10 +1148,10 @@
                     }
                 });
 
-                const comments = post.comments || [];
+                const comments = Array.isArray(post.comments) ? post.comments : [];
                 let commentsHTML = '';
                 comments.forEach(c => {
-                    const cAv = c.avatar ? `<img src="${c.avatar}" class="w-5 h-5 rounded-full object-cover">` : `<div class="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-bold">${c.name[0]}</div>`;
+                    const cAv = c.avatar ? `<img src="${c.avatar}" class="w-5 h-5 rounded-full object-cover">` : `<div class="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-bold">${c.name ? c.name[0] : 'U'}</div>`;
                     commentsHTML += `
                         <div class="flex items-start gap-2 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-xs">
                             ${cAv}
