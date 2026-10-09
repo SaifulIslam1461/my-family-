@@ -46,6 +46,7 @@
             <h1 class="text-xl font-bold">পারিবারিক ঐতিহ্য</h1>
         </div>
         <div id="user-profile-header" class="hidden flex items-center gap-2">
+            <img id="header-avatar" src="" class="w-7 h-7 rounded-full object-cover border border-yellow-400 hidden">
             <span id="user-display-name" class="text-xs bg-emerald-700 text-yellow-300 px-3 py-1 rounded-full font-bold"></span>
             <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg transition font-bold">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -57,10 +58,17 @@
     <section id="auth-screen" class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl mt-10 text-center">
         <i class="fa-solid fa-kaaba text-5xl text-emerald-800 dark:text-yellow-400 mb-4"></i>
         <h2 class="text-xl font-bold mb-2 text-emerald-800 dark:text-yellow-400">পারিবারিক অ্যাকাউন্টে প্রবেশ</h2>
-        <p class="text-xs text-gray-500 mb-4">আপনার নাম, ইমেইল ও পাসওয়ার্ড দিয়ে একাউন্ট খুলুন বা লগইন করুন</p>
+        <p class="text-xs text-gray-500 mb-4">আপনার নাম, প্রোফাইল ছবি, ইমেইল ও পাসওয়ার্ড দিয়ে একাউন্ট খুলুন বা লগইন করুন</p>
         
         <div class="space-y-3">
             <input type="text" id="reg-name" placeholder="আপনার নাম (যেমন: সাইফুল ইসলাম)" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none dark:text-white">
+            
+            <!-- Profile Photo Choice during Registration -->
+            <div class="text-left bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-xl border dark:border-gray-600">
+                <label class="text-xs text-gray-500 dark:text-gray-300 font-bold block mb-1">প্রোফাইল ছবি যুক্ত করুন (ঐচ্ছিক):</label>
+                <input type="file" id="reg-avatar" accept="image/*" class="text-xs dark:text-white w-full">
+            </div>
+
             <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none dark:text-white">
             <input type="password" id="auth-password" placeholder="পাসওয়ার্ড" class="w-full p-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:outline-none dark:text-white">
             
@@ -82,10 +90,18 @@
     <!-- App Main Screen -->
     <main id="app-screen" class="hidden max-w-2xl mx-auto p-4 space-y-6">
 
-        <!-- Banner -->
-        <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white">
-            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=800" class="w-full h-36 object-cover opacity-40" alt="Banner">
-            <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black/80 to-transparent w-full">
+        <!-- 🖼️ Customizable Banner Section -->
+        <div class="relative bg-emerald-800 rounded-2xl overflow-hidden shadow-lg text-white group">
+            <img id="banner-img" src="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=800" class="w-full h-40 object-cover opacity-50" alt="Banner">
+            
+            <!-- Banner Change Button -->
+            <label for="banner-file-input" class="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-1.5 backdrop-blur-sm transition z-10 border border-white/20">
+                <i class="fa-solid fa-camera text-yellow-400"></i>
+                <span>ব্যানার পরিবর্তন</span>
+            </label>
+            <input type="file" id="banner-file-input" accept="image/*" class="hidden" onchange="changeBannerImage(event)">
+
+            <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent w-full">
                 <h2 id="tab-title" class="text-xl font-bold text-yellow-400">পারিবারিক আর্কাইভ</h2>
                 <p id="tab-subtitle" class="text-xs italic">"ঈমান, একতা ও ঐতিহ্যের বন্ধন"</p>
             </div>
@@ -107,7 +123,8 @@
 
         <!-- Post Creation Form -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
+                <img id="form-user-avatar" src="" class="w-8 h-8 rounded-full object-cover hidden border border-emerald-800">
                 <input type="text" id="author-name" readonly class="w-1/2 bg-gray-200 dark:bg-gray-600 p-2 rounded-lg text-xs font-bold dark:text-yellow-300 border dark:border-gray-500">
                 <select id="post-category" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
                     <option value="general">সাধারণ বার্তা</option>
@@ -182,6 +199,11 @@
         let cachedPosts = [];
 
         window.addEventListener('DOMContentLoaded', () => {
+            const savedBanner = localStorage.getItem('family_banner_url');
+            if (savedBanner) {
+                document.getElementById('banner-img').src = savedBanner;
+            }
+
             const savedUser = localStorage.getItem('family_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -191,11 +213,44 @@
             }
         });
 
+        // 🖼️ Custom Banner Image Upload Function
+        async function changeBannerImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            alert("ব্যানার ছবি আপলোড হচ্ছে...");
+            try {
+                const cleanFileName = `banner_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': file.type || 'image/jpeg'
+                    },
+                    body: file
+                });
+
+                if (uploadRes.ok) {
+                    const newBannerUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                    document.getElementById('banner-img').src = newBannerUrl;
+                    localStorage.setItem('family_banner_url', newBannerUrl);
+                    alert("পারিবারিক ব্যানার সফলভাবে আপডেট করা হয়েছে!");
+                } else {
+                    alert("ব্যানার পরিবর্তন করা সম্ভব হয়নি।");
+                }
+            } catch (e) {
+                alert("ত্রুটি: " + e.message);
+            }
+        }
+
+        // 📝 Member Registration with Avatar Upload
         async function handleSignUp() {
             clearAuthMsg();
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const password = document.getElementById('auth-password').value;
+            const avatarFile = document.getElementById('reg-avatar').files[0];
 
             if (!name || !email || !password) return showAuthMsg("অনুগ্রহ করে আপনার নাম, ইমেইল এবং পাসওয়ার্ড দিন।");
 
@@ -213,6 +268,23 @@
                     return showAuthMsg("এই ইমেইল দিয়ে ইতোমধ্যে একটি একাউন্ট আছে। লগইন করার চেষ্টা করুন।");
                 }
 
+                let avatarUrl = null;
+                if (avatarFile) {
+                    const cleanFileName = `avatar_${Date.now()}_${avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                    const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': avatarFile.type || 'image/jpeg'
+                        },
+                        body: avatarFile
+                    });
+                    if (uploadRes.ok) {
+                        avatarUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
+                    }
+                }
+
                 const insertRes = await fetch(SUPABASE_MEMBERS, {
                     method: 'POST',
                     headers: {
@@ -221,7 +293,7 @@
                         'Content-Type': 'application/json',
                         'Prefer': 'return=representation'
                     },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ name, email, password, avatar_url: avatarUrl })
                 });
 
                 if (insertRes.ok) {
@@ -296,6 +368,16 @@
             document.getElementById('user-display-name').innerText = currentUser.name;
             document.getElementById('author-name').value = currentUser.name;
 
+            if (currentUser.avatar_url) {
+                const headerAvatar = document.getElementById('header-avatar');
+                headerAvatar.src = currentUser.avatar_url;
+                headerAvatar.classList.remove('hidden');
+
+                const formAvatar = document.getElementById('form-user-avatar');
+                formAvatar.src = currentUser.avatar_url;
+                formAvatar.classList.remove('hidden');
+            }
+
             fetchMembers();
             fetchPosts();
         }
@@ -307,13 +389,12 @@
             document.getElementById('user-profile-header').classList.add('hidden');
         }
 
-        // 👥 Fetch & Display Family Members
         async function fetchMembers() {
             const container = document.getElementById('members-list');
             const countBadge = document.getElementById('member-count');
 
             try {
-                const res = await fetch(`${SUPABASE_MEMBERS}?select=name,email&order=created_at.asc`, {
+                const res = await fetch(`${SUPABASE_MEMBERS}?select=name,email,avatar_url&order=created_at.asc`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
                 const members = await res.json();
@@ -322,9 +403,13 @@
                     countBadge.innerText = `${members.length} জন`;
                     container.innerHTML = '';
                     members.forEach(m => {
+                        const avatarSrc = m.avatar_url 
+                            ? `<img src="${m.avatar_url}" class="w-5 h-5 rounded-full object-cover">`
+                            : `<i class="fa-solid fa-circle-user text-emerald-600 dark:text-yellow-400 text-sm"></i>`;
+
                         container.innerHTML += `
                             <div class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border dark:border-gray-600">
-                                <i class="fa-solid fa-circle-user text-emerald-600 dark:text-yellow-400 text-sm"></i>
+                                ${avatarSrc}
                                 <span class="font-bold">${m.name}</span>
                             </div>
                         `;
@@ -416,6 +501,7 @@
 
             const payload = {
                 author_name: `${author}${categoryLabel}`,
+                author_avatar: currentUser ? currentUser.avatar_url : null,
                 content: content || 'মিডিয়া ফাইল শেয়ার করেছেন',
                 media_url: uploadedMediaUrl
             };
@@ -548,11 +634,15 @@
             filtered.forEach(post => {
                 const hasVideo = isVideo(post.media_url);
 
+                const avatarElement = post.author_avatar 
+                    ? `<img src="${post.author_avatar}" class="w-8 h-8 rounded-full object-cover border border-emerald-800">`
+                    : `<div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>`;
+
                 container.innerHTML += `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">${post.author_name ? post.author_name[0].toUpperCase() : 'U'}</div>
+                                ${avatarElement}
                                 <div>
                                     <h4 class="font-bold text-xs dark:text-gray-200">${post.author_name || 'পারিবারিক সদস্য'}</h4>
                                     <p class="text-[10px] text-gray-400">${new Date(post.created_at).toLocaleString('bn-BD')}</p>
