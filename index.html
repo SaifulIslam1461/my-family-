@@ -122,16 +122,14 @@
         <!-- Post Creation Form -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
             <div class="flex gap-2 items-center">
-                <!-- User Avatar & Instant Update Button -->
-                <div class="relative group cursor-pointer" title="প্রোফাইল ছবি পরিবর্তন করুন">
-                    <label for="instant-avatar-input" class="cursor-pointer">
-                        <img id="form-user-avatar" src="" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-800 hidden">
-                        <div id="form-avatar-placeholder" class="w-10 h-10 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs border border-yellow-400">
-                            <i class="fa-solid fa-camera"></i>
-                        </div>
-                    </label>
-                    <input type="file" id="instant-avatar-input" accept="image/*" class="hidden" onchange="updateProfileAvatar(event)">
-                </div>
+                <!-- User Avatar & Instant Change -->
+                <label for="instant-avatar-input" class="cursor-pointer relative flex-shrink-0" title="ছবি পরিবর্তন করতে চাপুন">
+                    <img id="form-user-avatar" src="" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-800 hidden">
+                    <div id="form-avatar-placeholder" class="w-10 h-10 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs border border-yellow-400">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                </label>
+                <input type="file" id="instant-avatar-input" accept="image/*" class="hidden" onchange="updateProfileAvatar(event)">
 
                 <input type="text" id="author-name" readonly class="w-1/2 bg-gray-200 dark:bg-gray-600 p-2 rounded-lg text-xs font-bold dark:text-yellow-300 border dark:border-gray-500">
                 <select id="post-category" class="w-1/2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-xs focus:outline-none dark:text-white border dark:border-gray-600">
@@ -226,7 +224,9 @@
             const file = event.target.files[0];
             if (!file || !currentUser) return;
 
-            alert("প্রোফাইল ছবি আপলোড হচ্ছে...");
+            const statusLabel = document.getElementById('upload-status');
+            statusLabel.innerText = "প্রোফাইল ছবি আপলোড হচ্ছে...";
+
             try {
                 const cleanFileName = `avatar_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
                 const uploadRes = await fetch(`${STORAGE_URL}/${cleanFileName}`, {
@@ -242,8 +242,8 @@
                 if (uploadRes.ok) {
                     const avatarUrl = `${SUPABASE_BASE}/storage/v1/object/public/media/${cleanFileName}`;
                     
-                    // Update Database
-                    await fetch(`${SUPABASE_MEMBERS}?id=eq.${currentUser.id}`, {
+                    // Update Database using id or email
+                    await fetch(`${SUPABASE_MEMBERS}?email=eq.${currentUser.email}`, {
                         method: 'PATCH',
                         headers: {
                             'apikey': SUPABASE_KEY,
@@ -257,10 +257,15 @@
                     localStorage.setItem('family_user', JSON.stringify(currentUser));
                     
                     showAppScreen();
+                    statusLabel.innerText = "";
                     alert("প্রোফাইল ছবি সফলভাবে যুক্ত হয়েছে!");
+                } else {
+                    alert("ছবি আপলোড হতে পারেনি। SQL Update Policy পরীক্ষা করুন।");
                 }
             } catch (e) {
                 alert("ছবি আপলোড হতে পারেনি: " + e.message);
+            } finally {
+                statusLabel.innerText = "";
             }
         }
 
