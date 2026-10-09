@@ -335,6 +335,15 @@
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
             </div>
 
+            <!-- PIN Code Customization Section -->
+            <div class="space-y-2 border-b dark:border-gray-700 pb-4">
+                <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">🔑 ডিলিট পিন (PIN) কোড পরিবর্তন করুন</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="new-pin-input" placeholder="নতুন পিন (যেমন: 5678)" class="text-xs p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-1">
+                    <button onclick="updateDeletePin()" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold">পিন সেভ করুন</button>
+                </div>
+            </div>
+
             <!-- App Icon Customization -->
             <div class="space-y-2 border-b dark:border-gray-700 pb-4">
                 <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300">📱 অ্যাপ আইকন (App Icon) কাস্টমাইজ করুন</h4>
@@ -403,8 +412,6 @@
         const STORAGE_URL = `${SUPABASE_BASE}/storage/v1/object/media`;
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cG94dWZwZWx1cXRkb29lZWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNjgyMzIsImV4cCI6MjEwNjg0NDIzMn0.oEwsRjnoXe5hNI7Iw4-UAOUMyA3mVc_ybZ48rHi4Uks';
 
-        const DELETE_PIN = '1234';
-
         let currentUser = null;
         let currentTab = 'feed';
         let mediaView = 'all';
@@ -413,6 +420,18 @@
         let deferredPrompt = null;
         let jitsiApi = null;
         let callAudio = null;
+
+        function getDeletePin() {
+            return localStorage.getItem('family_delete_pin') || '1234';
+        }
+
+        function updateDeletePin() {
+            const newPin = document.getElementById('new-pin-input').value.trim();
+            if (!newPin) return alert("নতুন পিন কোড লিখুন!");
+            localStorage.setItem('family_delete_pin', newPin);
+            document.getElementById('new-pin-input').value = '';
+            alert("সফলভাবে নতুন পিন কোড সেভ করা হয়েছে!");
+        }
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err));
@@ -457,7 +476,7 @@
             headerHTML += `</tr>`;
 
             let bodyHTML = "";
-            amals.forEach((amal, index) => {
+            amals.forEach((amal) => {
                 bodyHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40">`;
                 bodyHTML += `<td class="p-2 font-bold text-left border-r dark:border-gray-700 text-emerald-800 dark:text-yellow-400">${amal}</td>`;
                 
@@ -572,6 +591,69 @@
                 localStorage.setItem(storageKey, JSON.stringify(archives[label]));
                 renderMuhasabaTable();
                 alert(`"${label}" এর সংরক্ষিত মুহাসাবা ওপেন করা হয়েছে।`);
+            }
+        }
+
+        // ❤️ Likes & Comments Interaction Logic
+        async function toggleLike(postId) {
+            if (!currentUser) return;
+            const post = cachedPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            let likes = post.likes || [];
+            const userEmail = currentUser.email;
+
+            if (likes.includes(userEmail)) {
+                likes = likes.filter(e => e !== userEmail);
+            } else {
+                likes.push(userEmail);
+            }
+
+            try {
+                const res = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ likes: likes })
+                });
+                if (res.ok) {
+                    post.likes = likes;
+                    renderPosts();
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        async function addComment(postId) {
+            if (!currentUser) return;
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const post = cachedPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            let comments = post.comments || [];
+            comments.push({
+                name: currentUser.name,
+                avatar: currentUser.avatar_url || '',
+                text: text,
+                time: new Date().toISOString()
+            });
+
+            try {
+                const res = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ comments: comments })
+                });
+                if (res.ok) {
+                    post.comments = comments;
+                    input.value = '';
+                    renderPosts();
+                }
+            } catch (e) {
+                console.log(e);
             }
         }
 
@@ -697,7 +779,7 @@
 
         function openSettingsModal() {
             const pin = prompt("মাস্টার পিন দিন:");
-            if (pin === DELETE_PIN) {
+            if (pin === getDeletePin()) {
                 document.getElementById('settings-modal').classList.remove('hidden');
                 loadSettingsMembers();
             } else if (pin) { alert("ভুল পিন!"); }
@@ -922,7 +1004,7 @@
             await fetch(SUPABASE_POSTS, {
                 method: 'POST',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-                body: JSON.stringify({ author_name: `${author}${catLabel}`, author_avatar: currentUser?.avatar_url, content: content || 'মিডিয়া ফাইল', media_url: uploadedMediaUrl })
+                body: JSON.stringify({ author_name: `${author}${catLabel}`, author_avatar: currentUser?.avatar_url, content: content || 'মিডিয়া ফাইল', media_url: uploadedMediaUrl, likes: [], comments: [] })
             });
 
             document.getElementById('post-text').value = '';
@@ -934,7 +1016,7 @@
 
         async function deletePost(id) {
             const pin = prompt("পিন দিন:");
-            if (pin !== DELETE_PIN) return alert("ভুল পিন!");
+            if (pin !== getDeletePin()) return alert("ভুল পিন!");
             await fetch(`${SUPABASE_POSTS}?id=eq.${id}`, {
                 method: 'DELETE',
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
@@ -977,6 +1059,24 @@
                 const av = post.author_avatar ? `<img src="${post.author_avatar}" class="w-8 h-8 rounded-full object-cover">` : `<div class="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xs font-bold">${post.author_name?.[0] || 'U'}</div>`;
                 const mediaHTML = post.media_url ? (isVideo(post.media_url) ? `<video src="${post.media_url}" controls playsinline class="rounded-lg w-full max-h-80 bg-black"></video>` : `<img src="${post.media_url}" onclick="openModal('${post.media_url}')" class="rounded-lg w-full max-h-80 object-cover cursor-pointer">`) : '';
 
+                const likes = post.likes || [];
+                const isLiked = currentUser && likes.includes(currentUser.email);
+                const comments = post.comments || [];
+
+                let commentsHTML = '';
+                comments.forEach(c => {
+                    const cAv = c.avatar ? `<img src="${c.avatar}" class="w-5 h-5 rounded-full object-cover">` : `<div class="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-bold">${c.name[0]}</div>`;
+                    commentsHTML += `
+                        <div class="flex items-start gap-2 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-xs">
+                            ${cAv}
+                            <div>
+                                <span class="font-bold text-emerald-800 dark:text-yellow-300">${c.name}</span>
+                                <p class="dark:text-gray-200">${c.text}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
                 container.innerHTML += `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
@@ -988,6 +1088,26 @@
                         </div>
                         <p class="text-sm dark:text-gray-300">${post.content}</p>
                         ${mediaHTML}
+
+                        <!-- Like & Comment Actions Bar -->
+                        <div class="flex items-center justify-between border-t border-b dark:border-gray-700 py-2 text-xs">
+                            <button onclick="toggleLike('${post.id}')" class="flex items-center gap-1.5 font-bold ${isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}">
+                                <i class="fa-solid fa-heart"></i>
+                                <span>পছন্দ (${likes.length})</span>
+                            </button>
+                            <span class="text-gray-400">${comments.length}টি মন্তব্য</span>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="space-y-2 pt-1">
+                            <div class="space-y-1.5 max-h-40 overflow-y-auto">
+                                ${commentsHTML}
+                            </div>
+                            <div class="flex gap-2 pt-1">
+                                <input type="text" id="comment-input-${post.id}" placeholder="একটি মন্তব্য লিখুন..." class="flex-1 bg-gray-100 dark:bg-gray-700 text-xs p-2 rounded-lg border dark:border-gray-600 focus:outline-none dark:text-white">
+                                <button onclick="addComment('${post.id}')" class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded-lg font-bold">রিপ্লাই</button>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
