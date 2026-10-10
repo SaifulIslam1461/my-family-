@@ -670,13 +670,11 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify({ reactions: reactions })
                 });
-                if (res.ok) {
-                    post.reactions = reactions;
-                    closeReactionModal();
-                    await fetchPosts();
-                } else {
-                    alert("প্রতিক্রিয়া সেভ করতে সমস্যা হয়েছে!");
-                }
+                
+                post.reactions = reactions;
+                closeReactionModal();
+                renderPosts();
+                await fetchPosts();
             } catch (e) {
                 console.error(e);
             }
@@ -708,13 +706,11 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify({ comments: comments })
                 });
-                if (res.ok) {
-                    post.comments = comments;
-                    input.value = '';
-                    await fetchPosts();
-                } else {
-                    alert("কমেন্ট সেভ করতে সমস্যা হয়েছে!");
-                }
+                
+                post.comments = comments;
+                input.value = '';
+                renderPosts();
+                await fetchPosts();
             } catch (e) {
                 console.error(e);
             }
