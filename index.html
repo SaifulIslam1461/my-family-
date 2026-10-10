@@ -664,18 +664,17 @@
             if (!reactions[emoji]) reactions[emoji] = [];
             reactions[emoji].push(currentUser.email);
 
-            // UI instantly update
-            post.reactions = reactions;
-            closeReactionModal();
-            renderPosts();
-
             try {
                 const res = await fetch(`${SUPABASE_POSTS}?id=eq.${activeReactionPostId}`, {
                     method: 'PATCH',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify({ reactions: reactions })
                 });
-                fetchPosts();
+                
+                post.reactions = reactions;
+                closeReactionModal();
+                renderPosts();
+                await fetchPosts();
             } catch (e) {
                 console.error(e);
             }
@@ -701,18 +700,17 @@
                 time: new Date().toISOString()
             });
 
-            // UI instantly update
-            post.comments = comments;
-            input.value = '';
-            renderPosts();
-
             try {
                 const res = await fetch(`${SUPABASE_POSTS}?id=eq.${postId}`, {
                     method: 'PATCH',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify({ comments: comments })
                 });
-                fetchPosts();
+                
+                post.comments = comments;
+                input.value = '';
+                renderPosts();
+                await fetchPosts();
             } catch (e) {
                 console.error(e);
             }
@@ -833,13 +831,13 @@
                 if (rows && rows.length > 0) {
                     await fetch(`${SUPABASE_SETTINGS}?id=eq.${rows[0].id}`, {
                         method: 'PATCH',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                         body: JSON.stringify(bodyData)
                     });
                 } else {
                     await fetch(SUPABASE_SETTINGS, {
                         method: 'POST',
-                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                         body: JSON.stringify(bodyData)
                     });
                 }
@@ -1105,7 +1103,7 @@
             const catLabel = category === 'islamic' ? ' [ইসলামিক]' : category === 'archive' ? ' [আর্কাইভ]' : '';
             await fetch(SUPABASE_POSTS, {
                 method: 'POST',
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                 body: JSON.stringify({ author_name: `${author}${catLabel}`, author_avatar: currentUser?.avatar_url, content: content || 'মিডিয়া ফাইল', media_url: uploadedMediaUrl, reactions: {}, comments: [] })
             });
 
@@ -1143,7 +1141,7 @@
         function renderPosts() {
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
-            if (!cachedPosts || !cachedPosts.length) { container.innerHTML = `<p class="text-center text-sm text-gray-500">কোনো পোস্ট নেই।</p>`; return; }
+            if (!cachedPosts.length) { container.innerHTML = `<p class="text-center text-sm text-gray-500">কোনো পোস্ট নেই।</p>`; return; }
 
             let filtered = cachedPosts;
             if (currentTab === 'archive') {
